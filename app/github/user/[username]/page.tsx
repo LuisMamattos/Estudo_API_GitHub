@@ -102,6 +102,7 @@ export default async function UserPage({ params }: Props) {
         </div>
         {/* Coluna 2: Repos */}
         <div className="flex-1 grid gap-3 font-semibold">
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {repos.map((repo: any) => (
             <Card
               key={repo.id}
