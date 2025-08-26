@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -19,6 +20,8 @@ import {
 import fundodiv2 from "@/images/fundo4.avif";
 import fundodiv from "@/images/fundo3.avif";
 import fundo from "@/images/fundo2.jpg";
+import Link from "next/link";
+
 interface Props {
   params: { username: string };
 }
@@ -45,9 +48,9 @@ export default async function UserPage({ params }: Props) {
     >
       <div className="flex items-center justify-between">
         <Button variant="link" asChild>
-          <a href="/">
+          <Link href="/">
             <ArrowLeftIcon className="size-7 text-amber-50 fill-current" />
-          </a>
+          </Link>
         </Button>
         <h2 className="text-xl font-bold text-amber-50">Repositórios</h2>
         <div />
@@ -92,9 +95,13 @@ export default async function UserPage({ params }: Props) {
                   </p>
                 )}
                 <Button className="!px-0" variant="link" asChild>
-                  <a className="truncate" href={user.html_url} target="_blank">
+                  <Link
+                    className="truncate"
+                    href={user.html_url}
+                    target="_blank"
+                  >
                     <Github /> Ver no GitHub
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -102,7 +109,6 @@ export default async function UserPage({ params }: Props) {
         </div>
         {/* Coluna 2: Repos */}
         <div className="flex-1 grid gap-3 font-semibold">
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {repos.map((repo: any) => (
             <Card
               key={repo.id}
