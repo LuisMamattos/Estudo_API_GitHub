@@ -4,25 +4,33 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 import { useForm } from "react-hook-form";
 import {
   Form,
   FormItem,
-  FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
+  FormField,
 } from "@/components/ui/form";
 import { AtSignIcon, Search } from "lucide-react";
 import fundo from "@/images/fundo2.jpg";
 import fundodiv from "@/images/fundo3.avif";
 
+interface User {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  bio: string | null;
+  email: string | null;
+  location: string | null;
+  html_url: string;
+}
 export default function HomePage() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
-  const methods = useForm<{ username: string }>({
+  const form = useForm<{ username: string }>({
     defaultValues: { username: "" },
   });
 
@@ -50,23 +58,27 @@ export default function HomePage() {
           Buscar Usuários do GitHub
         </h1>
         <div className="flex items-center gap-4">
-          <Form {...methods}>
+          <Form {...form}>
             <form
-              onSubmit={methods.handleSubmit(handleSearch)}
+              onSubmit={form.handleSubmit(handleSearch)}
               className="flex gap-2"
             >
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="bg-amber-50"
-                    placeholder="Digite o nome de usuário"
-                    {...methods.register("username", {
-                      required: "Campo obrigatório",
-                    })}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        className="bg-amber-50"
+                        placeholder="Digite o nome de usuário"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <Button className="bg-blue-950" type="submit">
                 <Search />

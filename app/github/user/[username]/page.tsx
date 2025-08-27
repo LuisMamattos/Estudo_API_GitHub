@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -25,9 +24,18 @@ import Link from "next/link";
 interface Props {
   params: { username: string };
 }
+interface Repo {
+  id: number;
+  name: string;
+  description: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  language: string | null;
+  html_url: string;
+}
 
 export default async function UserPage({ params }: Props) {
-  const { username } = params;
+  const { username } = await params;
 
   const userRes = await fetch(`https://api.github.com/users/${username}`);
   const user = await userRes.json();
@@ -109,7 +117,7 @@ export default async function UserPage({ params }: Props) {
         </div>
         {/* Coluna 2: Repos */}
         <div className="flex-1 grid gap-3 font-semibold">
-          {repos.map((repo: any) => (
+          {repos.map((repo: Repo) => (
             <Card
               key={repo.id}
               style={{
@@ -118,13 +126,13 @@ export default async function UserPage({ params }: Props) {
               }}
             >
               <CardHeader className="text-center items-center">
-                <a
+                <Link
                   href={repo.html_url}
                   target="_blank"
                   className="font-medium text-primary truncate"
                 >
                   {repo.name}
-                </a>
+                </Link>
               </CardHeader>
               <CardDescription className="text-center items-center">
                 <p className="text-muted-foreground">{repo.description}</p>
