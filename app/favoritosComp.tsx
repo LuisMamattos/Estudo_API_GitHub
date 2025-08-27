@@ -53,13 +53,33 @@ export default function Favoritos({
                 onClick={() =>
                   (window.location.href = `/github/user/${user.login}`)
                 }
-                className="flex items-center gap-2 font-semibold truncate"
+                className="flex items-center gap-2 font-semibold truncate justify-between"
               >
-                <Avatar className="w-8 h-8 flex-shrink-0 border-1 border-blue-700">
-                  <AvatarImage src={user.avatar_url} alt={user.login} />
-                </Avatar>
-                <AtSignIcon className="size-4 flex-shrink-0" />
-                {user.login}
+                <div className="flex items-center truncate">
+                  <Avatar className="w-8 h-8 flex-shrink-0 border-1 border-blue-700">
+                    <AvatarImage src={user.avatar_url} alt={user.login} />
+                  </Avatar>
+                  <AtSignIcon className="size-4 flex-shrink-0" />
+                  {user.login}
+                </div>
+
+                <div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(user);
+                    }}
+                    className="p-1 hover:text-yellow-500"
+                  >
+                    <StarIcon
+                      className={`w-5 h-5 ${
+                        favoriteUsers.some((fav) => fav.login === user.login)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </button>
+                </div>
               </CardContent>
             </Card>
           ))}
