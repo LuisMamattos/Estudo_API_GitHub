@@ -19,12 +19,40 @@ import {
   Star,
   Utensils,
   Code,
+  Sun,
+  Moon,
 } from "lucide-react";
-import fundodiv2 from "@/images/fundo4.avif";
-import fundodiv from "@/images/fundo3.avif";
-import fundo from "@/images/fundo2.jpg";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
+
+// Componente de alternância de tema
+function ThemeToggle() {
+  const [isDark, setIsDark] = useState(
+    typeof window !== "undefined" ? document.documentElement.classList.contains("dark") : false
+  );
+
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
+  };
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+      aria-label="Toggle Theme"
+    >
+      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
+}
 
 interface Props {
   user: User;
@@ -85,35 +113,41 @@ export default function UserClient({ user, repos }: Props) {
       style={{
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundImage: `url(${fundo.src})`,
+        backgroundColor: "var(--background)",
       }}
     >
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between">
-        <Button variant="link" asChild>
-          <Link href="/">
-            <ArrowLeftIcon className="size-7 text-amber-50 fill-current" />
-          </Link>
-        </Button>
-        <h2 className="text-xl font-bold text-amber-50 ml-80">
-          Repositórios(arrumar alinhamento)
-        </h2>
-        <div className="text-xl font-bold text-amber-50 mr-22">Favoritos</div>
+      <div className="flex items-center justify-between px-6">
+        <div className="flex items-center gap-4">
+          <Button variant="link" asChild>
+            <Link href="/">
+              <ArrowLeftIcon className="size-7 text-amber-50 fill-current" />
+            </Link>
+          </Button>
+          <h2 className="text-xl font-bold">
+            Repositórios(arrumar alinhamento)
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="text-xl font-bold">Favoritos</div>
+          <ThemeToggle />
+        </div>
       </div>
 
-      <div className="flex flex-row gap-6 justify-between">
+      <div className="flex flex-row gap-6 justify-between px-6">
         {/* Coluna 1: Card com usuário */}
-        <div className="flex-1 ml-8">
+        <div className="flex-1">
           <Card
             className="w-full"
             style={{
               backgroundSize: "cover",
-              backgroundImage: `url(${fundodiv.src})`,
+              backgroundColor: "var(--card)",
             }}
           >
             <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
               <div className="flex flex-col items-center text-center w-full">
-                <Avatar className="w-full h-full">
+                <Avatar className="w-80 h-80 rounded-full">
                   <AvatarImage src={user.avatar_url} alt={user.login} />
                   <AvatarFallback>
                     {user.login.substring(0, 2).toUpperCase()}
@@ -160,7 +194,7 @@ export default function UserClient({ user, repos }: Props) {
               key={repo.id}
               style={{
                 backgroundSize: "cover",
-                backgroundImage: `url(${fundodiv2.src})`,
+                backgroundColor: "var(--card)",
               }}
             >
               <CardHeader className="flex justify-between items-center">
@@ -212,7 +246,7 @@ export default function UserClient({ user, repos }: Props) {
         </div>
 
         {/* Coluna 3: Favoritos */}
-        <div className=" ">
+        <div>
           <Favoritos
             favoriteRepos={favoriteRepos}
             toggleFavoriteR={toggleFavoriteR}
