@@ -14,19 +14,14 @@ import {
   FormField,
 } from "@/components/ui/form";
 import { AtSignIcon, Search, Star } from "lucide-react";
-import fundo from "@/images/fundo2.jpg";
-import fundodiv from "@/images/fundo3.avif";
 import Favoritos from "./favoritosComp";
 import { User, Repo } from "@/app/types";
 
 export default function HomePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteUsers");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
+    const stored = localStorage.getItem("favoriteUsers");
+    return stored ? JSON.parse(stored) : [];
   });
 
   const form = useForm<{ username: string }>({
@@ -58,11 +53,8 @@ export default function HomePage() {
   }
   // Estado para os repositórios favoritos
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteRepos");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
+    const stored = localStorage.getItem("favoriteRepos");
+    return stored ? JSON.parse(stored) : [];
   });
 
   // Salvar favoritos de repositórios no localStorage
@@ -81,14 +73,7 @@ export default function HomePage() {
   }
 
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundImage: `url(${fundo.src})`,
-      }}
-    >
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">
@@ -132,10 +117,6 @@ export default function HomePage() {
             <Card
               key={user.login}
               className="cursor-pointer hover:bg-muted transition"
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url(${fundodiv.src})`,
-              }}
             >
               <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <div
@@ -171,12 +152,6 @@ export default function HomePage() {
             </Card>
           ))}
         </div>
-        {/* gif sem motivo nenhum*/}
-        <img
-          src="https://raw.githubusercontent.com/aayushgoyal/aayushgoyal/master/github.gif"
-          alt="github dançarino"
-          className="rounded-full m-10 self-center w-32 h-32 md:w-32 md:h-32 lg:w-100 lg:h-100"
-        />
         {/* barrasssss de favoritos */}
         <Favoritos
           favoriteUsers={favoriteUsers}

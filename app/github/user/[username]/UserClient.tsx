@@ -20,9 +20,6 @@ import {
   Utensils,
   Code,
 } from "lucide-react";
-import fundodiv2 from "@/images/fundo4.avif";
-import fundodiv from "@/images/fundo3.avif";
-import fundo from "@/images/fundo2.jpg";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
 
@@ -80,19 +77,12 @@ export default function UserClient({ user, repos }: Props) {
   }
 
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundImage: `url(${fundo.src})`,
-      }}
-    >
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
       {/* Cabeçalho */}
-      <div className=" p-0 m-0flex items-center justify-between">
+      <div className=" p-0 m-0 flex items-center justify-between">
         <Button variant="link" asChild>
           <Link href="/">
-            <ArrowLeftIcon className="size-7 text-amber-50 fill-current" />
+            <ArrowLeftIcon className="size-7 fill-current" />
           </Link>
         </Button>
       </div>
@@ -100,14 +90,9 @@ export default function UserClient({ user, repos }: Props) {
       <div className="flex flex-row gap-1 justify-between p-3">
         {/* Coluna 1: Card com usuário */}
         <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
-          <div className="text-xl font-bold text-amber-50 ">Perfil</div>
+          <div className="text-xl font-bold ">Perfil</div>
           <div className="flex-1 w-full ">
-            <Card
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url(${fundodiv.src})`,
-              }}
-            >
+            <Card>
               <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
                 <div className="flex flex-col items-center text-center w-full">
                   <Avatar className="w-full h-full">
@@ -153,17 +138,11 @@ export default function UserClient({ user, repos }: Props) {
 
         {/* Coluna 2: Repos */}
         <div className="flex flex-col w-full items-center">
-          <div className="text-xl font-bold text-amber-50">Repositórios</div>
+          <div className="text-xl font-bold ">Repositórios</div>
 
           <div className="grid gap-1 font-semibold h-[800px] w-full overflow-y-auto">
             {repos.map((repo) => (
-              <Card
-                key={repo.id}
-                style={{
-                  backgroundSize: "cover",
-                  backgroundImage: `url(${fundodiv2.src})`,
-                }}
-              >
+              <Card key={repo.id}>
                 <CardHeader className="flex justify-between items-center">
                   <Link
                     href={repo.html_url}
@@ -174,18 +153,20 @@ export default function UserClient({ user, repos }: Props) {
                   </Link>
 
                   {/* Botão de favoritar */}
-                  <button
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
                     onClick={() => toggleFavoriteR(repo)}
-                    className="p-1 hover:text-yellow-500"
                   >
                     <Star
                       className={`w-5 h-5 ${
                         favoriteRepos.some((fav) => fav.id === repo.id)
                           ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-400"
+                          : ""
                       }`}
                     />
-                  </button>
+                  </Button>
                 </CardHeader>
 
                 <CardDescription className="text-center items-center">
@@ -215,7 +196,7 @@ export default function UserClient({ user, repos }: Props) {
 
         {/* Coluna 3: Favoritos */}
         <div className="flex flex-col items-center">
-          <div className="text-xl font-bold text-amber-50">Favoritos</div>
+          <div className="text-xl font-bold">Favoritos</div>
           <div className=" ">
             <Favoritos
               favoriteRepos={favoriteRepos}

@@ -3,9 +3,8 @@
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Star as StarIcon, AtSignIcon } from "lucide-react";
-import fundodiv from "@/images/fundo3.avif";
-import fundofavoritos from "@/images/fundoStar.jpg";
 import { User, Repo } from "@/app/types";
+import { Button } from "@/components/ui/button";
 
 interface FavoritosProps {
   // Usuários favoritos
@@ -25,13 +24,7 @@ export default function Favoritos({
   return (
     <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}
-      <Card
-        className="bg-white rounded-xl w-[235px] p-3 "
-        style={{
-          backgroundSize: "cover",
-          backgroundImage: `url(${fundodiv.src})`,
-        }}
-      >
+      <Card className="bg-white rounded-xl w-[235px] p-3 ">
         <CardHeader>
           <CardTitle className="flex items-center text-center text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
@@ -44,10 +37,6 @@ export default function Favoritos({
             <Card
               key={user.login}
               className="flex p-1 hover:bg-muted cursor-pointer"
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url(${fundofavoritos.src})`,
-              }}
             >
               <CardContent
                 onClick={() =>
@@ -64,12 +53,14 @@ export default function Favoritos({
                 </div>
 
                 <div>
-                  <button
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(user);
                     }}
-                    className="p-1 hover:text-yellow-500"
                   >
                     <StarIcon
                       className={`w-5 h-5 ${
@@ -78,7 +69,7 @@ export default function Favoritos({
                           : "text-gray-400"
                       }`}
                     />
-                  </button>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -87,13 +78,7 @@ export default function Favoritos({
       </Card>
 
       {/* Repositórios favoritos */}
-      <Card
-        className="bg-white rounded-xl w-[235px] p-3"
-        style={{
-          backgroundSize: "cover",
-          backgroundImage: `url(${fundodiv.src})`,
-        }}
-      >
+      <Card className="bg-white rounded-xl w-[235px] p-3">
         <CardHeader>
           <CardTitle className="flex items-center text-center text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
@@ -107,10 +92,6 @@ export default function Favoritos({
               onClick={() => window.open(repo.html_url, "_blank")}
               key={repo.id}
               className="flex p-1 hover:bg-muted cursor-pointer"
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url(${fundofavoritos.src})`,
-              }}
             >
               <CardContent className="flex flex-col gap-1 w-full">
                 {/* Linha de nome */}
