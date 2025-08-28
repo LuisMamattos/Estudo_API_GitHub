@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useForm } from "react-hook-form";
 import {
@@ -14,14 +14,18 @@ import {
   FormField,
 } from "@/components/ui/form";
 import { AtSignIcon, Search, Star } from "lucide-react";
+
 import Favoritos from "./favoritosComp";
 import { User, Repo } from "@/app/types";
 
 export default function HomePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
-    const stored = localStorage.getItem("favoriteUsers");
-    return stored ? JSON.parse(stored) : [];
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("favoriteUsers");
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
   });
 
   const form = useForm<{ username: string }>({
@@ -53,8 +57,11 @@ export default function HomePage() {
   }
   // Estado para os repositórios favoritos
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
-    const stored = localStorage.getItem("favoriteRepos");
-    return stored ? JSON.parse(stored) : [];
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("favoriteRepos");
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
   });
 
   // Salvar favoritos de repositórios no localStorage
@@ -109,11 +116,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* conteudo */}
-      <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
-        {/* resultados da pesquisa */}
-        <div className="flex flex-col gap-1 w-[700px] h-[820] overflow-auto">
-          {users.slice(0, 100).map((user) => (
+      {/* Resultados da busca */}
+      <div className="pt-16 flex space-y-6 justify-between items-center text-center">
+        <div className="grid gap-4 w-[700px] p-3">
+          {users.slice(0, 5).map((user) => (
             <Card
               key={user.login}
               className="cursor-pointer hover:bg-muted transition"
@@ -152,7 +158,7 @@ export default function HomePage() {
             </Card>
           ))}
         </div>
-        {/* barrasssss de favoritos */}
+
         <Favoritos
           favoriteUsers={favoriteUsers}
           toggleFavorite={toggleFavorite}
