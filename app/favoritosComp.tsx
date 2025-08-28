@@ -23,10 +23,10 @@ export default function Favoritos({
   toggleFavorite,
 }: FavoritosProps) {
   return (
-    <div className="flex flex-col gap-3 p-3">
+    <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}
       <Card
-        className="bg-white rounded-xl w-[235px] p-3"
+        className="bg-white rounded-xl w-[235px] p-3 "
         style={{
           backgroundSize: "cover",
           backgroundImage: `url(${fundodiv.src})`,
@@ -39,7 +39,7 @@ export default function Favoritos({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="rounded-xl p-0 w-[222px] h-[200px] overflow-y-auto flex flex-col gap-2">
+        <CardContent className="rounded-xl p-0 w-[210px] h-[200px] overflow-y-auto flex flex-col gap-2">
           {favoriteUsers.map((user) => (
             <Card
               key={user.login}
@@ -101,7 +101,7 @@ export default function Favoritos({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="rounded-xl p-0 w-[222px] h-[200px] overflow-y-auto flex flex-col gap-2">
+        <CardContent className="rounded-xl p-0 w-[210px] h-[200px] overflow-y-auto flex flex-col gap-2">
           {favoriteRepos?.map((repo) => (
             <Card
               onClick={() => window.open(repo.html_url, "_blank")}

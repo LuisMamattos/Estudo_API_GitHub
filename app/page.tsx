@@ -124,10 +124,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Resultados da busca */}
-      <div className="pt-16 flex space-y-6 justify-between items-center text-center">
-        <div className="grid gap-4 w-[700px] p-3">
-          {users.slice(0, 5).map((user) => (
+      {/* conteudo */}
+      <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
+        {/* resultados da pesquisa */}
+        <div className="flex flex-col gap-1 w-[700px] h-[820] overflow-auto">
+          {users.slice(0, 100).map((user) => (
             <Card
               key={user.login}
               className="cursor-pointer hover:bg-muted transition"
@@ -170,13 +171,13 @@ export default function HomePage() {
             </Card>
           ))}
         </div>
-
+        {/* gif sem motivo nenhum*/}
         <img
           src="https://raw.githubusercontent.com/aayushgoyal/aayushgoyal/master/github.gif"
           alt="github dançarino"
-          className="rounded-full w-32 h-32 md:w-32 md:h-32 lg:w-100 lg:h-100"
+          className="rounded-full m-10 self-center w-32 h-32 md:w-32 md:h-32 lg:w-100 lg:h-100"
         />
-
+        {/* barrasssss de favoritos */}
         <Favoritos
           favoriteUsers={favoriteUsers}
           toggleFavorite={toggleFavorite}
