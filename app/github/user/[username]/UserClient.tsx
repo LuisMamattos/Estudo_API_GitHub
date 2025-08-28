@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
+import PaginationControls from "@/app/PaginationControls";
 
 interface Props {
   user: User;
@@ -29,6 +30,10 @@ interface Props {
 }
 
 export default function UserClient({ user, repos }: Props) {
+  const [total, setTotal] = useState(0);
+
+  const [page, setPage] = useState(1);
+  const perPage = 30;
   // Inicializa o estado com localStorage apenas uma vez
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
