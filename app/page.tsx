@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useForm } from "react-hook-form";
 import {
@@ -17,8 +17,14 @@ import { AtSignIcon, Search, Star } from "lucide-react";
 
 import Favoritos from "./favoritosComp";
 import { User, Repo } from "@/app/types";
+import PaginationControls from "@/app/PaginationControls";
 
 export default function HomePage() {
+  const [total, setTotal] = useState(0);
+
+  const [page, setPage] = useState(1);
+  const perPage = 30;
+
   const [users, setUsers] = useState<User[]>([]);
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
@@ -41,10 +47,11 @@ export default function HomePage() {
     if (!data.username) return;
 
     const res = await fetch(
-      `https://api.github.com/search/users?q=${data.username}`
+      `https://api.github.com/search/users?q=${data.username}&page=${page}&per_page=${perPage}`
     );
     const result = await res.json();
     setUsers(result.items || []);
+    setTotal(result.total_count || 0); // precisa disso
   }
 
   function toggleFavorite(user: User) {
@@ -78,9 +85,19 @@ export default function HomePage() {
       setFavoriteRepos([...favoriteRepos, repo]);
     }
   }
-
+  useEffect(() => {
+    if (form.getValues("username")) {
+      handleSearch({ username: form.getValues("username") });
+    }
+  }, [page]);
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+    <div
+      className="fixed top-0 left-0 flex flex-col w-full h-full"
+      style={{
+        backgroundSize: "cover",
+        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
+      }}
+    >
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">
@@ -116,49 +133,64 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Resultados da busca */}
-      <div className="pt-16 flex space-y-6 justify-between items-center text-center">
-        <div className="grid gap-4 w-[700px] p-3">
-          {users.slice(0, 5).map((user) => (
-            <Card
-              key={user.login}
-              className="cursor-pointer hover:bg-muted transition"
-            >
-              <CardHeader className="flex flex-row items-center justify-between gap-4">
-                <div
-                  onClick={() =>
-                    (window.location.href = `/github/user/${user.login}`)
-                  }
-                  className="flex flex-row items-center gap-4 cursor-pointer truncate"
-                >
-                  <Avatar className="size-15">
-                    <AvatarImage src={user.avatar_url} alt={user.login} />
-                  </Avatar>
-                  <span className="font-medium text-2xl">
-                    <p className="flex items-center gap-1">
-                      <AtSignIcon className="size-6" />
-                      {user.login}
-                    </p>
-                  </span>
-                </div>
-                <Button
-                  variant={"ghost"}
-                  onClick={() => toggleFavorite(user)}
-                  className="p-0 bg-transparent hover:bg-transparent hover:text-yellow-500"
-                >
-                  <Star
-                    className={`w-5 h-5 ${
-                      favoriteUsers.some((fav) => fav.login === user.login)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-gray-400"
-                    }`}
-                  />
-                </Button>
-              </CardHeader>
-            </Card>
-          ))}
+      {/* conteudo */}
+      <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
+        {/* resultados da pesquisa */}
+        <div className="w-[700px] h-[820]">
+          <div className="flex flex-col gap-1 w-full h-[700] overflow-auto">
+            {users.map((user) => (
+              <Card
+                key={user.login}
+                className="cursor-pointer hover:bg-muted transition "
+                style={{
+                  backgroundSize: "cover",
+                  backgroundImage: `url("/images/fundoReuniao3.avif")`,
+                }}
+              >
+                <CardContent className="flex flex-row items-center justify-between gap-4">
+                  <div
+                    onClick={() =>
+                      (window.location.href = `/github/user/${user.login}`)
+                    }
+                    className="flex flex-row items-center gap-2 cursor-pointer truncate"
+                  >
+                    <Avatar className="">
+                      <AvatarImage src={user.avatar_url} alt={user.login} />
+                    </Avatar>
+                    <span className="font-medium text-2xl">
+                      <p className="flex items-center gap-1">
+                        <AtSignIcon className="size-6" />
+                        {user.login}
+                      </p>
+                    </span>
+                  </div>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => toggleFavorite(user)}
+                    className="p-0 bg-transparent hover:bg-transparent hover:text-yellow-500"
+                  >
+                    <Star
+                      className={`w-5 h-5 ${
+                        favoriteUsers.some((fav) => fav.login === user.login)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          {total > 0 && (
+            <PaginationControls
+              page={page}
+              setPage={setPage}
+              total={total}
+              perPage={perPage}
+            />
+          )}
         </div>
-
+        {/* barrasssssss de favoritos */}
         <Favoritos
           favoriteUsers={favoriteUsers}
           toggleFavorite={toggleFavorite}

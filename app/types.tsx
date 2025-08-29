@@ -6,6 +6,7 @@ export interface User {
   email?: string | null;
   location?: string | null;
   html_url?: string;
+  public_repos: number;
 }
 export interface Repo {
   id: number;
