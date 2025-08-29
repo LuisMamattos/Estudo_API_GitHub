@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useForm } from "react-hook-form";
 import {
@@ -135,16 +135,16 @@ export default function HomePage() {
             {users.map((user) => (
               <Card
                 key={user.login}
-                className="cursor-pointer hover:bg-muted transition"
+                className="cursor-pointer hover:bg-muted transition "
               >
-                <CardHeader className="flex flex-row items-center justify-between gap-4">
+                <CardContent className="flex flex-row items-center justify-between gap-4">
                   <div
                     onClick={() =>
                       (window.location.href = `/github/user/${user.login}`)
                     }
-                    className="flex flex-row items-center gap-4 cursor-pointer truncate"
+                    className="flex flex-row items-center gap-2 cursor-pointer truncate"
                   >
-                    <Avatar className="size-15">
+                    <Avatar className="">
                       <AvatarImage src={user.avatar_url} alt={user.login} />
                     </Avatar>
                     <span className="font-medium text-2xl">
@@ -167,7 +167,7 @@ export default function HomePage() {
                       }`}
                     />
                   </Button>
-                </CardHeader>
+                </CardContent>
               </Card>
             ))}
           </div>

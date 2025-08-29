@@ -20,7 +20,7 @@ export default function Favoritos({
   toggleFavoriteR,
   favoriteUsers,
   toggleFavorite,
-}: FavoritosProps) {
+}: Readonly<FavoritosProps>) {
   return (
     <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}

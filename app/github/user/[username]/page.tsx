@@ -5,16 +5,6 @@ interface Props {
   params: { username: string };
 }
 
-interface Repo {
-  id: number;
-  name: string;
-  description: string | null;
-  stargazers_count: number;
-  forks_count: number;
-  language: string | null;
-  html_url: string;
-}
-
 export default async function UserPage({ params }: Props) {
   const { username } = params;
 
@@ -24,13 +14,6 @@ export default async function UserPage({ params }: Props) {
   });
   const user: User = await userRes.json();
 
-  const reposRes = await fetch(
-    `https://api.github.com/users/${username}/repos`,
-    {
-      next: { revalidate: 60 },
-    }
-  );
-  const repos: Repo[] = await reposRes.json();
-
-  return <UserClient user={user} repos={repos} />;
+  // manda só o user pro client
+  return <UserClient user={user} />;
 }

@@ -29,11 +29,23 @@ interface Props {
   repos: Repo[];
 }
 
-export default function UserClient({ user, repos }: Props) {
-  const [total, setTotal] = useState(0);
+export default function UserClient({ user }: { user: User }) {
+  const [repos, setRepos] = useState<Repo[]>([]);
 
   const [page, setPage] = useState(1);
   const perPage = 30;
+
+  useEffect(() => {
+    async function fetchRepos() {
+      const res = await fetch(
+        `https://api.github.com/users/${user.login}/repos?page=${page}&per_page=${perPage}`
+      );
+      const data = await res.json();
+      setRepos(data);
+    }
+    fetchRepos();
+  }, [user.login, page]);
+
   // Inicializa o estado com localStorage apenas uma vez
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
@@ -145,7 +157,7 @@ export default function UserClient({ user, repos }: Props) {
         <div className="flex flex-col w-full items-center">
           <div className="text-xl font-bold ">Repositórios</div>
 
-          <div className="grid gap-1 font-semibold h-[800px] w-full overflow-y-auto">
+          <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
             {repos.map((repo) => (
               <Card key={repo.id}>
                 <CardHeader className="flex justify-between items-center">
@@ -183,7 +195,7 @@ export default function UserClient({ user, repos }: Props) {
                     <span className="flex items-center gap-1">
                       <Star className="size-3" /> {repo.stargazers_count}
                     </span>
-                    |
+                    <span>|</span>
                     <span className="flex items-center gap-1">
                       <Utensils className="size-3" /> {repo.forks_count}
                     </span>
@@ -197,6 +209,12 @@ export default function UserClient({ user, repos }: Props) {
               </Card>
             ))}
           </div>
+          <PaginationControls
+            page={page}
+            setPage={setPage}
+            total={user.public_repos} // total de repositórios do GitHub
+            perPage={perPage}
+          />
         </div>
 
         {/* Coluna 3: Favoritos */}
