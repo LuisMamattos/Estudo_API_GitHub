@@ -91,7 +91,13 @@ export default function HomePage() {
     }
   }, [page]);
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+    <div
+      className="fixed top-0 left-0 flex flex-col w-full h-full"
+      style={{
+        backgroundSize: "cover",
+        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
+      }}
+    >
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">
@@ -136,6 +142,10 @@ export default function HomePage() {
               <Card
                 key={user.login}
                 className="cursor-pointer hover:bg-muted transition "
+                style={{
+                  backgroundSize: "cover",
+                  backgroundImage: `url("/images/fundoReuniao3.avif")`,
+                }}
               >
                 <CardContent className="flex flex-row items-center justify-between gap-4">
                   <div

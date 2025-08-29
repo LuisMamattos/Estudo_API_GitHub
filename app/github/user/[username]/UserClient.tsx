@@ -45,21 +45,24 @@ export default function UserClient({ user }: { user: User }) {
     }
     fetchRepos();
   }, [user.login, page]);
+  //////////////////////////////////////////////////////////////////////////////
+  const [favoriteUsers, setFavoriteUsers] = useState<User[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  // Inicializa o estado com localStorage apenas uma vez
-  const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteUsers");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
-
-  // Sincroniza o localStorage sempre que favoriteUsers mudar
+  // Carrega só no client
   useEffect(() => {
-    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  }, [favoriteUsers]);
+    const stored = localStorage.getItem("favoriteUsers");
+    if (stored) setFavoriteUsers(JSON.parse(stored));
+    setMounted(true);
+  }, []);
 
+  // Sempre salva quando mudar
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
+    }
+  }, [favoriteUsers, mounted]);
+  //////////////////////////////////////////////////////////////////////////////
   function toggleFavorite(user: User) {
     const isFav = favoriteUsers.some((fav) => fav.login === user.login);
     setFavoriteUsers(
@@ -70,18 +73,25 @@ export default function UserClient({ user }: { user: User }) {
   }
 
   // Inicializa o estado com localStorage apenas uma vez
-  const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteRepos");
-      return stored ? JSON.parse(stored) : repos;
-    }
-    return repos;
-  });
+  //////////////////////////////////////////////////////////////////////////////
 
-  // Sincroniza o localStorage sempre que favoriteRepos mudar
+  const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>([]);
+  const [mountedR, setMountedR] = useState(false);
+
+  // Executa só no client
   useEffect(() => {
-    localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
-  }, [favoriteRepos]);
+    const stored = localStorage.getItem("favoriteRepos");
+    if (stored) setFavoriteRepos(JSON.parse(stored));
+    setMountedR(true); // indica que já carregou do client
+  }, []);
+
+  // Sempre salva no localStorage quando mudar
+  useEffect(() => {
+    if (mountedR) {
+      localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
+    }
+  }, [favoriteRepos, mountedR]);
+  /////////////////////////////////////////////////////////////////////////////
 
   // Alterna favorito
   function toggleFavoriteR(repo: Repo) {
@@ -94,7 +104,13 @@ export default function UserClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+    <div
+      className="fixed top-0 left-0 flex flex-col w-full h-full"
+      style={{
+        backgroundSize: "cover",
+        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
+      }}
+    >
       {/* Cabeçalho */}
       <div className=" p-0 m-0 flex items-center justify-between">
         <Button variant="link" asChild>
@@ -109,7 +125,12 @@ export default function UserClient({ user }: { user: User }) {
         <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
           <div className="text-xl font-bold ">Perfil</div>
           <div className="flex-1 w-full ">
-            <Card>
+            <Card
+              style={{
+                backgroundSize: "cover",
+                backgroundImage: `url("/images/fundoReuniao5.jpg")`,
+              }}
+            >
               <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
                 <div className="flex flex-col items-center text-center w-full">
                   <Avatar className="w-full h-full">
@@ -159,7 +180,13 @@ export default function UserClient({ user }: { user: User }) {
 
           <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
             {repos.map((repo) => (
-              <Card key={repo.id}>
+              <Card
+                key={repo.id}
+                style={{
+                  backgroundSize: "cover",
+                  backgroundImage: `url("/images/fundoReuniao6.avif")`,
+                }}
+              >
                 <CardHeader className="flex justify-between items-center">
                   <Link
                     href={repo.html_url}

@@ -24,9 +24,15 @@ export default function Favoritos({
   return (
     <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}
-      <Card className="bg-white rounded-xl w-[235px] p-3 ">
+      <Card
+        className="bg-white rounded-xl w-[235px] p-3 "
+        style={{
+          backgroundSize: "cover",
+          backgroundImage: `url("/images/fundoReuniao4.webp")`,
+        }}
+      >
         <CardHeader>
-          <CardTitle className="flex items-center text-center text-lg font-bold">
+          <CardTitle className="flex items-center text-center text-amber-400 text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
             Perfis
           </CardTitle>
@@ -37,6 +43,10 @@ export default function Favoritos({
             <Card
               key={user.login}
               className="flex p-1 hover:bg-muted cursor-pointer"
+              style={{
+                backgroundSize: "cover",
+                backgroundImage: `url("/images/fundoReuniao1.jpg")`,
+              }}
             >
               <CardContent
                 onClick={() =>
@@ -78,9 +88,15 @@ export default function Favoritos({
       </Card>
 
       {/* Repositórios favoritos */}
-      <Card className="bg-white rounded-xl w-[235px] p-3">
+      <Card
+        className="bg-white rounded-xl w-[235px] p-3"
+        style={{
+          backgroundSize: "cover",
+          backgroundImage: `url("/images/fundoReuniao4.webp")`,
+        }}
+      >
         <CardHeader>
-          <CardTitle className="flex items-center text-center text-lg font-bold">
+          <CardTitle className="flex items-center text-amber-400 text-center text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
             Repositórios
           </CardTitle>
@@ -92,6 +108,10 @@ export default function Favoritos({
               onClick={() => window.open(repo.html_url, "_blank")}
               key={repo.id}
               className="flex p-1 hover:bg-muted cursor-pointer"
+              style={{
+                backgroundSize: "cover",
+                backgroundImage: `url("/images/fundoReuniao2.jpg")`,
+              }}
             >
               <CardContent className="flex flex-col gap-1 w-full">
                 {/* Linha de nome */}
