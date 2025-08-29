@@ -21,11 +21,12 @@ import PaginationControls from "@/app/PaginationControls";
 
 export default function HomePage() {
   const [total, setTotal] = useState(0);
-
   const [page, setPage] = useState(1);
   const perPage = 30;
-
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteUsers");
@@ -45,13 +46,23 @@ export default function HomePage() {
 
   async function handleSearch(data: { username: string }) {
     if (!data.username) return;
-
-    const res = await fetch(
-      `https://api.github.com/search/users?q=${data.username}&page=${page}&per_page=${perPage}`
-    );
-    const result = await res.json();
-    setUsers(result.items || []);
-    setTotal(result.total_count || 0); // precisa disso
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(
+        `/api/search/users?q=${encodeURIComponent(
+          data.username
+        )}&page=${page}&per_page=${perPage}`
+      );
+      if (!res.ok) throw new Error("Erro ao buscar usuários");
+      const json = await res.json();
+      setUsers(json.items);
+      setTotal(json.total);
+    } catch (e: any) {
+      setError(e.message || "Erro ao carregar usuários");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function toggleFavorite(user: User) {

@@ -42,27 +42,58 @@ export default function UserPage({ params }: Props) {
   const [page, setPage] = useState(1);
   const perPage = 30;
 
-  // Busca user
+  // Loading e Error do perfil do usuário
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState<string | null>(null);
+  // Perfil
   useEffect(() => {
-    async function fetchUser() {
-      setLoading(true);
-      const res = await fetch(`https://api.github.com/users/${username}`);
-      const data = await res.json();
-      setUser(data);
-      setLoading(false);
-    }
-    fetchUser();
+    let alive = true;
+    (async () => {
+      setUserLoading(true);
+      setUserError(null);
+      try {
+        const res = await fetch(`/api/search/users/${username}`);
+        if (!res.ok) throw new Error("Erro ao carregar perfil");
+        const data = await res.json();
+        if (alive) setUser(data);
+      } catch (e: any) {
+        if (alive) setUserError(e.message || "Erro ao carregar perfil");
+      } finally {
+        if (alive) setUserLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
   }, [username]);
 
-  // Busca repos
+  // Loading e Error dos repositórios
+  const [reposLoading, setReposLoading] = useState(true);
+  const [reposError, setReposError] = useState<string | null>(null);
+
+  // Repos com paginação
   useEffect(() => {
-    async function fetchRepos() {
-      const res = await fetch(`https://api.github.com/users/${username}/repos`);
-      const data = await res.json();
-      setRepos(data);
-    }
-    fetchRepos();
-  }, [username]);
+    let alive = true;
+    (async () => {
+      setReposLoading(true);
+      setReposError(null);
+      try {
+        const res = await fetch(
+          `/api/search/users/${username}/repos?page=${page}&per_page=${perPage}`
+        );
+        if (!res.ok) throw new Error("Erro ao carregar repositórios");
+        const data = await res.json();
+        if (alive) setRepos(data);
+      } catch (e: any) {
+        if (alive) setReposError(e.message || "Erro ao carregar repositórios");
+      } finally {
+        if (alive) setReposLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [username, page]);
 
   // Favorite Users: carrega do storage
   useEffect(() => {
@@ -102,7 +133,11 @@ export default function UserPage({ params }: Props) {
     );
   }
 
-  if (loading) return <p>Carregando...</p>;
+  if (userLoading) return <p>Carregando perfil...</p>;
+  if (userError) return <p>{userError}</p>;
+
+  if (reposLoading) return <p>Carregando repositórios...</p>;
+  if (reposError) return <p>{reposError}</p>;
   if (!user) return <p>Usuário não encontrado</p>;
   return (
     <div
