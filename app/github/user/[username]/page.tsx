@@ -23,7 +23,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
-import PaginationControls from "@/app/PaginationControls";
+
+import {
+  FavoritosSkeleton,
+  PerfilSkeleton,
+  RepositoriosSkeleton,
+} from "@/app/skeletons";
+import PerfilCard from "./perfil";
+import ReposList from "./repositorios";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -34,7 +41,9 @@ export default function UserPage({ params }: Props) {
 
   const [user, setUser] = useState<User | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>([]);
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>([]);
@@ -43,8 +52,9 @@ export default function UserPage({ params }: Props) {
   const perPage = 30;
 
   // Loading e Error do perfil do usuário
-  const [userLoading, setUserLoading] = useState(true);
+
   const [userError, setUserError] = useState<string | null>(null);
+
   // Perfil
   useEffect(() => {
     let alive = true;
@@ -52,12 +62,13 @@ export default function UserPage({ params }: Props) {
       setUserLoading(true);
       setUserError(null);
       try {
-        const res = await fetch(`/api/search/users/${username}`);
-        if (!res.ok) throw new Error("Erro ao carregar perfil");
+        const res = await fetch(`/api/users/${username}`);
+        if (!res.ok) throw new Error("Erro ao carregar perfil"); /////
         const data = await res.json();
         if (alive) setUser(data);
       } catch (e: any) {
-        if (alive) setUserError(e.message || "Erro ao carregar perfil");
+        if (alive)
+          setUserError(e.message || "Outro tipo de erro ao carregar perfil");
       } finally {
         if (alive) setUserLoading(false);
       }
@@ -68,7 +79,6 @@ export default function UserPage({ params }: Props) {
   }, [username]);
 
   // Loading e Error dos repositórios
-  const [reposLoading, setReposLoading] = useState(true);
   const [reposError, setReposError] = useState<string | null>(null);
 
   // Repos com paginação
@@ -79,13 +89,16 @@ export default function UserPage({ params }: Props) {
       setReposError(null);
       try {
         const res = await fetch(
-          `/api/search/users/${username}/repos?page=${page}&per_page=${perPage}`
+          `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
         );
         if (!res.ok) throw new Error("Erro ao carregar repositórios");
         const data = await res.json();
         if (alive) setRepos(data);
       } catch (e: any) {
-        if (alive) setReposError(e.message || "Erro ao carregar repositórios");
+        if (alive)
+          setReposError(
+            e.message || "Outro tipo de erro ao carregar repositórios"
+          );
       } finally {
         if (alive) setReposLoading(false);
       }
@@ -96,22 +109,22 @@ export default function UserPage({ params }: Props) {
   }, [username, page]);
 
   // Favorite Users: carrega do storage
-  useEffect(() => {
-    const stored = localStorage.getItem("favoriteUsers");
-    if (stored) setFavoriteUsers(JSON.parse(stored));
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  }, [favoriteUsers]);
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteUsers");
+  //   if (stored) setFavoriteUsers(JSON.parse(stored));
+  // }, []);
+  // useEffect(() => {
+  //   localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
+  // }, [favoriteUsers]);
 
-  // Favorite Repos: carrega do storage
-  useEffect(() => {
-    const stored = localStorage.getItem("favoriteRepos");
-    if (stored) setFavoriteRepos(JSON.parse(stored));
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
-  }, [favoriteRepos]);
+  // // Favorite Repos: carrega do storage
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteRepos");
+  //   if (stored) setFavoriteRepos(JSON.parse(stored));
+  // }, []);
+  // useEffect(() => {
+  //   localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
+  // }, [favoriteRepos]);
 
   // Toggle user favorito
   function toggleFavoriteUser(user: User) {
@@ -132,22 +145,23 @@ export default function UserPage({ params }: Props) {
         : [...favoriteRepos, repo]
     );
   }
+  // Favorite Users
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteUsers");
+  //   if (stored) setFavoriteUsers(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui
+  // }, []);
 
-  if (userLoading) return <p>Carregando perfil...</p>;
-  if (userError) return <p>{userError}</p>;
+  // // Favorite Repos
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteRepos");
+  //   if (stored) setFavoriteRepos(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui também
+  // }, []);
 
-  if (reposLoading) return <p>Carregando repositórios...</p>;
-  if (reposError) return <p>{reposError}</p>;
-  if (!user) return <p>Usuário não encontrado</p>;
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
-      }}
-    >
-      {/* Cabeçalho */}
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+      {/* Cabeçalho (literalmente so uma seta) */}
       <div className=" p-0 m-0 flex items-center justify-between">
         <Button variant="link" asChild>
           <Link href="/">
@@ -158,139 +172,35 @@ export default function UserPage({ params }: Props) {
 
       <div className="flex flex-row gap-1 justify-between p-3">
         {/* Coluna 1: Card com usuário */}
-        <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
-          <div className="text-xl font-bold ">Perfil</div>
-          <div className="flex-1 w-full ">
-            <Card
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url("/images/fundoReuniao5.jpg")`,
-              }}
-            >
-              <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
-                <div className="flex flex-col items-center text-center w-full">
-                  <Avatar className="w-full h-full">
-                    <AvatarImage src={user.avatar_url} alt={user.login} />
-                    <AvatarFallback>
-                      {user.login.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="text-[clamp(1rem,2vw,10rem)] font-bold break-words">
-                    {user.name || user.login}
-                  </CardTitle>
-                </div>
-
-                <div className="w-full space-y-1 text-left font-semibold">
-                  <p className="flex items-center gap-1 italic truncate">
-                    <AtSignIcon className="size-3 shrink-0" />
-                    {user.login}
-                  </p>
-                  {user.bio && <p>{user.bio}</p>}
-                  {user.email && <p>{user.email}</p>}
-                  {user.location && (
-                    <p className="flex items-center gap-1 truncate">
-                      <MapPin className="size-3 shrink-0" />
-                      {user.location}
-                    </p>
-                  )}
-                  {user.html_url && (
-                    <Button className="!px-0" variant="link" asChild>
-                      <Link
-                        className="truncate"
-                        href={user.html_url}
-                        target="_blank"
-                      >
-                        <Github /> Ver no GitHub
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
+        {userLoading ? <PerfilSkeleton /> : <PerfilCard user={user} />}
 
         {/* Coluna 2: Repos */}
-        <div className="flex flex-col w-full items-center">
-          <div className="text-xl font-bold ">Repositórios</div>
-
-          <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
-            {repos.map((repo) => (
-              <Card
-                key={repo.id}
-                style={{
-                  backgroundSize: "cover",
-                  backgroundImage: `url("/images/fundoReuniao6.avif")`,
-                }}
-              >
-                <CardHeader className="flex justify-between items-center">
-                  <Link
-                    href={repo.html_url}
-                    target="_blank"
-                    className="font-medium text-primary truncate"
-                  >
-                    {repo.name}
-                  </Link>
-
-                  {/* Botão de favoritar */}
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => toggleFavoriteRepo(repo)}
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        favoriteRepos.some((fav) => fav.id === repo.id)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : ""
-                      }`}
-                    />
-                  </Button>
-                </CardHeader>
-
-                <CardDescription className="text-center items-center">
-                  <p className="text-muted-foreground">{repo.description}</p>
-                </CardDescription>
-
-                <CardContent className="flex justify-between">
-                  <p className="text-sm flex items-center gap-2">
-                    <span className="flex items-center gap-1">
-                      <Star className="size-3" /> {repo.stargazers_count}
-                    </span>
-                    <span>|</span>
-                    <span className="flex items-center gap-1">
-                      <Utensils className="size-3" /> {repo.forks_count}
-                    </span>
-                  </p>
-                  {repo.language && (
-                    <span className="text-sm text-amber-700 flex items-center gap-1 truncate">
-                      <Code className="size-3" /> {repo.language}
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <PaginationControls
-            page={page}
-            setPage={setPage}
-            total={user.public_repos} // total de repositórios do GitHub
-            perPage={perPage}
-          />
-        </div>
+        {reposLoading ? (
+          <RepositoriosSkeleton />
+        ) : (
+          user && (
+            <ReposList
+              repos={repos}
+              favoriteRepos={favoriteRepos}
+              toggleFavoriteRepo={toggleFavoriteRepo}
+              page={page}
+              setPage={setPage}
+              perPage={perPage}
+              total={user.public_repos} // total de repositórios
+            />
+          )
+        )}
 
         {/* Coluna 3: Favoritos */}
         <div className="flex flex-col items-center">
           <div className="text-xl font-bold">Favoritos</div>
-          <div className=" ">
-            <Favoritos
-              favoriteRepos={favoriteRepos}
-              toggleFavoriteR={toggleFavoriteRepo}
-              favoriteUsers={favoriteUsers}
-              toggleFavorite={toggleFavoriteUser}
-            />
-          </div>
+
+          <Favoritos
+            favoriteRepos={favoriteRepos}
+            toggleFavoriteR={toggleFavoriteRepo}
+            favoriteUsers={favoriteUsers}
+            toggleFavorite={toggleFavoriteUser}
+          />
         </div>
       </div>
     </div>

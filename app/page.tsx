@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -13,18 +12,22 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
-import { AtSignIcon, Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
 
 import Favoritos from "./favoritosComp";
 import { User, Repo } from "@/app/types";
-import PaginationControls from "@/app/PaginationControls";
+
+import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
+import SearchResults from "./searchResults";
 
 export default function HomePage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const perPage = 30;
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
+
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
@@ -34,6 +37,19 @@ export default function HomePage() {
     }
     return [];
   });
+  // Favorite Users
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteUsers");
+  //   if (stored) setFavoriteUsers(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui
+  // }, []);
+
+  // // Favorite Repos
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteRepos");
+  //   if (stored) setFavoriteRepos(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui também
+  // }, []);
 
   const form = useForm<{ username: string }>({
     defaultValues: { username: "" },
@@ -43,27 +59,6 @@ export default function HomePage() {
   useEffect(() => {
     localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
   }, [favoriteUsers]);
-
-  async function handleSearch(data: { username: string }) {
-    if (!data.username) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(
-        `/api/search/users?q=${encodeURIComponent(
-          data.username
-        )}&page=${page}&per_page=${perPage}`
-      );
-      if (!res.ok) throw new Error("Erro ao buscar usuários");
-      const json = await res.json();
-      setUsers(json.items);
-      setTotal(json.total);
-    } catch (e: any) {
-      setError(e.message || "Erro ao carregar usuários");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function toggleFavorite(user: User) {
     const isFav = favoriteUsers.some((fav) => fav.login === user.login);
@@ -101,14 +96,29 @@ export default function HomePage() {
       handleSearch({ username: form.getValues("username") });
     }
   }, [page]);
+
+  async function handleSearch(data: { username: string }) {
+    if (!data.username) return;
+    try {
+      setUserLoading(true);
+      setError(null);
+      const res = await fetch(
+        `/api/search/users?q=${encodeURIComponent(
+          data.username
+        )}&page=${page}&per_page=${perPage}`
+      );
+      if (!res.ok) throw new Error("Erro ao buscar usuários");
+      const json = await res.json();
+      setUsers(json.items);
+      setTotal(json.total);
+    } catch (e: any) {
+      setError(e.message || "Erro ao carregar usuários");
+    } finally {
+      setUserLoading(false);
+    }
+  }
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
-      }}
-    >
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">
@@ -147,61 +157,22 @@ export default function HomePage() {
       {/* conteudo */}
       <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
         {/* resultados da pesquisa */}
-        <div className="w-[700px] h-[820]">
-          <div className="flex flex-col gap-1 w-full h-[700] overflow-auto">
-            {users.map((user) => (
-              <Card
-                key={user.login}
-                className="cursor-pointer hover:bg-muted transition "
-                style={{
-                  backgroundSize: "cover",
-                  backgroundImage: `url("/images/fundoReuniao3.avif")`,
-                }}
-              >
-                <CardContent className="flex flex-row items-center justify-between gap-4">
-                  <div
-                    onClick={() =>
-                      (window.location.href = `/github/user/${user.login}`)
-                    }
-                    className="flex flex-row items-center gap-2 cursor-pointer truncate"
-                  >
-                    <Avatar className="">
-                      <AvatarImage src={user.avatar_url} alt={user.login} />
-                    </Avatar>
-                    <span className="font-medium text-2xl">
-                      <p className="flex items-center gap-1">
-                        <AtSignIcon className="size-6" />
-                        {user.login}
-                      </p>
-                    </span>
-                  </div>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() => toggleFavorite(user)}
-                    className="p-0 bg-transparent hover:bg-transparent hover:text-yellow-500"
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        favoriteUsers.some((fav) => fav.login === user.login)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-400"
-                      }`}
-                    />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          {total > 0 && (
-            <PaginationControls
-              page={page}
-              setPage={setPage}
-              total={total}
-              perPage={perPage}
-            />
-          )}
-        </div>
+        {userLoading ? (
+          <PesquisaSkeleton />
+        ) : (
+          <SearchResults
+            users={users}
+            page={page}
+            setPage={setPage}
+            total={total}
+            perPage={perPage}
+            favoriteUsers={favoriteUsers}
+            toggleFavorite={toggleFavorite}
+          />
+        )}
+
         {/* barrasssssss de favoritos */}
+
         <Favoritos
           favoriteUsers={favoriteUsers}
           toggleFavorite={toggleFavorite}
