@@ -56,9 +56,9 @@ export default function HomePage() {
   });
 
   // Salvar favoritos no localStorage
-  useEffect(() => {
-    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  }, [favoriteUsers]);
+  // useEffect(() => {
+  //   localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
+  // }, [favoriteUsers]);
 
   function toggleFavorite(user: User) {
     const isFav = favoriteUsers.some((fav) => fav.login === user.login);
@@ -78,9 +78,9 @@ export default function HomePage() {
   });
 
   // Salvar favoritos de repositórios no localStorage
-  useEffect(() => {
-    localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
-  }, [favoriteRepos]);
+  // useEffect(() => {
+  //   localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
+  // }, [favoriteRepos]);
 
   // Alternar favorito de repositório
   function toggleFavoriteR(repo: Repo) {
