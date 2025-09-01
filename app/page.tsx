@@ -25,7 +25,7 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const perPage = 30;
   const [users, setUsers] = useState<User[]>([]);
-  const [userLoading, setUserLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(false);
 
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +107,7 @@ export default function HomePage() {
           data.username
         )}&page=${page}&per_page=${perPage}`
       );
+
       if (!res.ok) throw new Error("Erro ao buscar usuários");
       const json = await res.json();
       setUsers(json.items);
