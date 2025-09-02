@@ -29,7 +29,11 @@ export default function HomePage() {
 
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const form = useForm<{ username: string }>({
+    defaultValues: { username: "" },
+  });
+  ///////////////////////////////////////////////////////////////////////
+  // Estado para os usuários favoritos
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteUsers");
@@ -37,37 +41,6 @@ export default function HomePage() {
     }
     return [];
   });
-  // Favorite Users
-  // useEffect(() => {
-  //   const stored = localStorage.getItem("favoriteUsers");
-  //   if (stored) setFavoriteUsers(JSON.parse(stored));
-  //   setFavoritesLoading(false); // <<< aqui
-  // }, []);
-
-  // // Favorite Repos
-  // useEffect(() => {
-  //   const stored = localStorage.getItem("favoriteRepos");
-  //   if (stored) setFavoriteRepos(JSON.parse(stored));
-  //   setFavoritesLoading(false); // <<< aqui também
-  // }, []);
-
-  const form = useForm<{ username: string }>({
-    defaultValues: { username: "" },
-  });
-
-  // Salvar favoritos no localStorage
-  // useEffect(() => {
-  //   localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  // }, [favoriteUsers]);
-
-  function toggleFavorite(user: User) {
-    const isFav = favoriteUsers.some((fav) => fav.login === user.login);
-    if (isFav) {
-      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
-    } else {
-      setFavoriteUsers([...favoriteUsers, user]);
-    }
-  }
   // Estado para os repositórios favoritos
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
     if (typeof window !== "undefined") {
@@ -76,12 +49,39 @@ export default function HomePage() {
     }
     return [];
   });
+  ///////////////////////////////////////////////////////////////////////
+  // Favorite Users loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteUsers");
+    if (stored) setFavoriteUsers(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui
+  }, []);
 
+  // Favorite Repos loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteRepos");
+    if (stored) setFavoriteRepos(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui também
+  }, []);
+  ///////////////////////////////////////////////////////////////////////
+  // Salvar favoritos no localStorage
+  useEffect(() => {
+    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
+  }, [favoriteUsers]);
   // Salvar favoritos de repositórios no localStorage
-  // useEffect(() => {
-  //   localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
-  // }, [favoriteRepos]);
-
+  useEffect(() => {
+    localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
+  }, [favoriteRepos]);
+  ///////////////////////////////////////////////////////////////////////
+  // Alternar favorito de usuario
+  function toggleFavorite(user: User) {
+    const isFav = favoriteUsers.some((fav) => fav.login === user.login);
+    if (isFav) {
+      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
+    } else {
+      setFavoriteUsers([...favoriteUsers, user]);
+    }
+  }
   // Alternar favorito de repositório
   function toggleFavoriteR(repo: Repo) {
     const isFav = favoriteRepos.some((fav) => fav.id === repo.id);
@@ -91,6 +91,7 @@ export default function HomePage() {
       setFavoriteRepos([...favoriteRepos, repo]);
     }
   }
+  ///////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (form.getValues("username")) {
       handleSearch({ username: form.getValues("username") });
@@ -173,13 +174,16 @@ export default function HomePage() {
         )}
 
         {/* barrasssssss de favoritos */}
-
-        <Favoritos
-          favoriteUsers={favoriteUsers}
-          toggleFavorite={toggleFavorite}
-          favoriteRepos={favoriteRepos}
-          toggleFavoriteR={toggleFavoriteR}
-        />
+        {favoritesLoading ? (
+          <FavoritosSkeleton />
+        ) : (
+          <Favoritos
+            favoriteUsers={favoriteUsers}
+            toggleFavorite={toggleFavorite}
+            favoriteRepos={favoriteRepos}
+            toggleFavoriteR={toggleFavoriteR}
+          />
+        )}
       </div>
     </div>
   );

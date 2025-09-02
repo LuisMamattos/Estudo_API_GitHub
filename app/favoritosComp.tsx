@@ -99,6 +99,9 @@ export default function Favoritos({
                   <div className="truncate font-bold">{repo.name}</div>
                   <div>
                     <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleFavoriteR && toggleFavoriteR(repo);
