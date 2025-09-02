@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Star as StarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 //////////////////////HomePage///////////////////////

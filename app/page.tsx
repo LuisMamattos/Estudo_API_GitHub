@@ -113,12 +113,17 @@ export default function HomePage() {
       const json = await res.json();
       setUsers(json.items);
       setTotal(json.total);
-    } catch (e: any) {
-      setError(e.message || "Erro ao carregar usuários");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError("Erro ao carregar usuários");
+      }
     } finally {
       setUserLoading(false);
     }
   }
+
   return (
     <div className="fixed top-0 left-0 flex flex-col w-full h-full">
       {/* Barra superior */}

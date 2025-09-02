@@ -3,24 +3,8 @@
 import { useState, useEffect, use } from "react";
 import { User, Repo } from "@/app/types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  AtSignIcon,
-  Github,
-  MapPin,
-  ArrowLeftIcon,
-  Star,
-  Utensils,
-  Code,
-} from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
 
@@ -55,23 +39,34 @@ export default function UserPage({ params }: Props) {
   // Perfil
   useEffect(() => {
     let alive = true;
-    (async () => {
+
+    const fetchUser = async () => {
       setUserLoading(true);
       setUserError(null);
+
       try {
         const res = await fetch(`/api/users/${username}`);
-        if (!res.ok) throw new Error("Erro ao carregar perfil"); /////
-        const data = await res.json();
+        if (!res.ok) throw new Error("Erro ao carregar perfil");
+
+        const data: User = await res.json(); // tipa corretamente o retorno
         if (alive) setUser(data);
-      } catch (e: any) {
-        if (alive)
-          setUserError(e.message || "Outro tipo de erro ao carregar perfil");
+      } catch (e: unknown) {
+        if (!alive) return;
+
+        if (e instanceof Error) {
+          setUserError(e.message);
+        } else {
+          setUserError("Erro desconhecido ao carregar perfil");
+        }
       } finally {
         if (alive) setUserLoading(false);
       }
-    })();
+    };
+
+    fetchUser();
+
     return () => {
-      alive = false;
+      alive = false; // cancela atualização se o componente desmontar
     };
   }, [username]);
 
@@ -81,6 +76,7 @@ export default function UserPage({ params }: Props) {
   // Repos com paginação
   useEffect(() => {
     let alive = true;
+
     (async () => {
       setReposLoading(true);
       setReposError(null);
@@ -89,17 +85,22 @@ export default function UserPage({ params }: Props) {
           `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
         );
         if (!res.ok) throw new Error("Erro ao carregar repositórios");
+
         const data = await res.json();
         if (alive) setRepos(data);
-      } catch (e: any) {
-        if (alive)
-          setReposError(
-            e.message || "Outro tipo de erro ao carregar repositórios"
-          );
+      } catch (e: unknown) {
+        if (alive) {
+          if (e instanceof Error) {
+            setReposError(e.message);
+          } else {
+            setReposError("Outro tipo de erro ao carregar repositórios");
+          }
+        }
       } finally {
         if (alive) setReposLoading(false);
       }
     })();
+
     return () => {
       alive = false;
     };
