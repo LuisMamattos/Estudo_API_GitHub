@@ -24,13 +24,7 @@ export default function Favoritos({
   return (
     <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}
-      <Card
-        className="bg-white rounded-xl w-[235px] p-3 "
-        style={{
-          backgroundSize: "cover",
-          backgroundImage: `url("/images/fundoReuniao4.webp")`,
-        }}
-      >
+      <Card className="bg-white rounded-xl w-[235px] p-3 ">
         <CardHeader>
           <CardTitle className="flex items-center text-center text-amber-400 text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
@@ -43,10 +37,6 @@ export default function Favoritos({
             <Card
               key={user.login}
               className="flex p-1 hover:bg-muted cursor-pointer"
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url("/images/fundoReuniao1.jpg")`,
-              }}
             >
               <CardContent
                 onClick={() =>
@@ -88,13 +78,7 @@ export default function Favoritos({
       </Card>
 
       {/* Repositórios favoritos */}
-      <Card
-        className="bg-white rounded-xl w-[235px] p-3"
-        style={{
-          backgroundSize: "cover",
-          backgroundImage: `url("/images/fundoReuniao4.webp")`,
-        }}
-      >
+      <Card className="bg-white rounded-xl w-[235px] p-3">
         <CardHeader>
           <CardTitle className="flex items-center text-amber-400 text-center text-lg font-bold">
             <StarIcon className="size-5 mr-2 fill-amber-300 stroke-amber-500" />
@@ -108,17 +92,16 @@ export default function Favoritos({
               onClick={() => window.open(repo.html_url, "_blank")}
               key={repo.id}
               className="flex p-1 hover:bg-muted cursor-pointer"
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url("/images/fundoReuniao2.jpg")`,
-              }}
             >
               <CardContent className="flex flex-col gap-1 w-full">
                 {/* Linha de nome */}
                 <div className="flex justify-between items-center">
                   <div className="truncate font-bold">{repo.name}</div>
                   <div>
-                    <button
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleFavoriteR && toggleFavoriteR(repo);
@@ -126,7 +109,7 @@ export default function Favoritos({
                       className="p-0 z-50"
                     >
                       <StarIcon className="w-4 h-4 flex-shrink-0 fill-yellow-400 text-blue-700" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 

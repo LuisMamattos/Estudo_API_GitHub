@@ -3,27 +3,18 @@
 import { useState, useEffect, use } from "react";
 import { User, Repo } from "@/app/types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  AtSignIcon,
-  Github,
-  MapPin,
-  ArrowLeftIcon,
-  Star,
-  Utensils,
-  Code,
-} from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
 import Favoritos from "@/app/favoritosComp";
-import PaginationControls from "@/app/PaginationControls";
+
+import {
+  FavoritosSkeleton,
+  PerfilSkeleton,
+  RepositoriosSkeleton,
+} from "@/app/skeletons";
+import PerfilCard from "./perfil";
+import ReposList from "./repositorios";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -34,36 +25,119 @@ export default function UserPage({ params }: Props) {
 
   const [user, setUser] = useState<User | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [favoriteUsers, setFavoriteUsers] = useState<User[]>([]);
-  const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>([]);
+  const [userLoading, setUserLoading] = useState(true);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   const [page, setPage] = useState(1);
   const perPage = 30;
 
-  // Busca user
+  // Loading e Error do perfil do usuário
+
+  const [userError, setUserError] = useState<string | null>(null);
+
+  // Perfil
   useEffect(() => {
-    async function fetchUser() {
-      setLoading(true);
-      const res = await fetch(`https://api.github.com/users/${username}`);
-      const data = await res.json();
-      setUser(data);
-      setLoading(false);
-    }
+    let alive = true;
+
+    const fetchUser = async () => {
+      setUserLoading(true);
+      setUserError(null);
+
+      try {
+        const res = await fetch(`/api/users/${username}`);
+        if (!res.ok) throw new Error("Erro ao carregar perfil");
+
+        const data: User = await res.json(); // tipa corretamente o retorno
+        if (alive) setUser(data);
+      } catch (e: unknown) {
+        if (!alive) return;
+
+        if (e instanceof Error) {
+          setUserError(e.message);
+        } else {
+          setUserError("Erro desconhecido ao carregar perfil");
+        }
+      } finally {
+        if (alive) setUserLoading(false);
+      }
+    };
+
     fetchUser();
+
+    return () => {
+      alive = false; // cancela atualização se o componente desmontar
+    };
   }, [username]);
 
-  // Busca repos
+  // Loading e Error dos repositórios
+  const [reposError, setReposError] = useState<string | null>(null);
+
+  // Repos com paginação
   useEffect(() => {
-    async function fetchRepos() {
-      const res = await fetch(`https://api.github.com/users/${username}/repos`);
-      const data = await res.json();
-      setRepos(data);
-    }
-    fetchRepos();
-  }, [username]);
+    let alive = true;
 
+    (async () => {
+      setReposLoading(true);
+      setReposError(null);
+      try {
+        const res = await fetch(
+          `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
+        );
+        if (!res.ok) throw new Error("Erro ao carregar repositórios");
+
+        const data = await res.json();
+        if (alive) setRepos(data);
+      } catch (e: unknown) {
+        if (alive) {
+          if (e instanceof Error) {
+            setReposError(e.message);
+          } else {
+            setReposError("Outro tipo de erro ao carregar repositórios");
+          }
+        }
+      } finally {
+        if (alive) setReposLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [username, page]);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Estado para os usuários favoritos
+  const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("favoriteUsers");
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+  // Estado para os repositórios favoritos
+  const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("favoriteRepos");
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+  ////////////////////////////////////////////////////////////////////////////////
+  // Favorite Users loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteUsers");
+    if (stored) setFavoriteUsers(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui
+  }, []);
+
+  // Favorite Repos loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteRepos");
+    if (stored) setFavoriteRepos(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui também
+  }, []);
+  ////////////////////////////////////////////////////////////////////////////////
   // Favorite Users: carrega do storage
   useEffect(() => {
     const stored = localStorage.getItem("favoriteUsers");
@@ -72,7 +146,6 @@ export default function UserPage({ params }: Props) {
   useEffect(() => {
     localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
   }, [favoriteUsers]);
-
   // Favorite Repos: carrega do storage
   useEffect(() => {
     const stored = localStorage.getItem("favoriteRepos");
@@ -81,38 +154,43 @@ export default function UserPage({ params }: Props) {
   useEffect(() => {
     localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
   }, [favoriteRepos]);
-
-  // Toggle user favorito
-  function toggleFavoriteUser(user: User) {
+  ////////////////////////////////////////////////////////////////////////////////
+  // Alternar favorito de usuario
+  function toggleFavorite(user: User) {
     const isFav = favoriteUsers.some((fav) => fav.login === user.login);
-    setFavoriteUsers(
-      isFav
-        ? favoriteUsers.filter((fav) => fav.login !== user.login)
-        : [...favoriteUsers, user]
-    );
+    if (isFav) {
+      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
+    } else {
+      setFavoriteUsers([...favoriteUsers, user]);
+    }
   }
-
-  // Toggle repo favorito
-  function toggleFavoriteRepo(repo: Repo) {
+  // Alternar favorito de repositório
+  function toggleFavoriteR(repo: Repo) {
     const isFav = favoriteRepos.some((fav) => fav.id === repo.id);
-    setFavoriteRepos(
-      isFav
-        ? favoriteRepos.filter((fav) => fav.id !== repo.id)
-        : [...favoriteRepos, repo]
-    );
+    if (isFav) {
+      setFavoriteRepos(favoriteRepos.filter((fav) => fav.id !== repo.id));
+    } else {
+      setFavoriteRepos([...favoriteRepos, repo]);
+    }
   }
+  ////////////////////////////////////////////////////////////////////////////////
+  // Favorite Users
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteUsers");
+  //   if (stored) setFavoriteUsers(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui
+  // }, []);
 
-  if (loading) return <p>Carregando...</p>;
-  if (!user) return <p>Usuário não encontrado</p>;
+  // Favorite Repos
+  // useEffect(() => {
+  //   const stored = localStorage.getItem("favoriteRepos");
+  //   if (stored) setFavoriteRepos(JSON.parse(stored));
+  //   setFavoritesLoading(false); // <<< aqui também
+  // }, []);
+
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
-      }}
-    >
-      {/* Cabeçalho */}
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+      {/* Cabeçalho (literalmente so uma seta) */}
       <div className=" p-0 m-0 flex items-center justify-between">
         <Button variant="link" asChild>
           <Link href="/">
@@ -123,139 +201,40 @@ export default function UserPage({ params }: Props) {
 
       <div className="flex flex-row gap-1 justify-between p-3">
         {/* Coluna 1: Card com usuário */}
-        <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
-          <div className="text-xl font-bold ">Perfil</div>
-          <div className="flex-1 w-full ">
-            <Card
-              style={{
-                backgroundSize: "cover",
-                backgroundImage: `url("/images/fundoReuniao5.jpg")`,
-              }}
-            >
-              <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
-                <div className="flex flex-col items-center text-center w-full">
-                  <Avatar className="w-full h-full">
-                    <AvatarImage src={user.avatar_url} alt={user.login} />
-                    <AvatarFallback>
-                      {user.login.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="text-[clamp(1rem,2vw,10rem)] font-bold break-words">
-                    {user.name || user.login}
-                  </CardTitle>
-                </div>
-
-                <div className="w-full space-y-1 text-left font-semibold">
-                  <p className="flex items-center gap-1 italic truncate">
-                    <AtSignIcon className="size-3 shrink-0" />
-                    {user.login}
-                  </p>
-                  {user.bio && <p>{user.bio}</p>}
-                  {user.email && <p>{user.email}</p>}
-                  {user.location && (
-                    <p className="flex items-center gap-1 truncate">
-                      <MapPin className="size-3 shrink-0" />
-                      {user.location}
-                    </p>
-                  )}
-                  {user.html_url && (
-                    <Button className="!px-0" variant="link" asChild>
-                      <Link
-                        className="truncate"
-                        href={user.html_url}
-                        target="_blank"
-                      >
-                        <Github /> Ver no GitHub
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
+        {userLoading ? <PerfilSkeleton /> : user && <PerfilCard user={user} />}
 
         {/* Coluna 2: Repos */}
-        <div className="flex flex-col w-full items-center">
-          <div className="text-xl font-bold ">Repositórios</div>
-
-          <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
-            {repos.map((repo) => (
-              <Card
-                key={repo.id}
-                style={{
-                  backgroundSize: "cover",
-                  backgroundImage: `url("/images/fundoReuniao6.avif")`,
-                }}
-              >
-                <CardHeader className="flex justify-between items-center">
-                  <Link
-                    href={repo.html_url}
-                    target="_blank"
-                    className="font-medium text-primary truncate"
-                  >
-                    {repo.name}
-                  </Link>
-
-                  {/* Botão de favoritar */}
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => toggleFavoriteRepo(repo)}
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        favoriteRepos.some((fav) => fav.id === repo.id)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : ""
-                      }`}
-                    />
-                  </Button>
-                </CardHeader>
-
-                <CardDescription className="text-center items-center">
-                  <p className="text-muted-foreground">{repo.description}</p>
-                </CardDescription>
-
-                <CardContent className="flex justify-between">
-                  <p className="text-sm flex items-center gap-2">
-                    <span className="flex items-center gap-1">
-                      <Star className="size-3" /> {repo.stargazers_count}
-                    </span>
-                    <span>|</span>
-                    <span className="flex items-center gap-1">
-                      <Utensils className="size-3" /> {repo.forks_count}
-                    </span>
-                  </p>
-                  {repo.language && (
-                    <span className="text-sm text-amber-700 flex items-center gap-1 truncate">
-                      <Code className="size-3" /> {repo.language}
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <PaginationControls
-            page={page}
-            setPage={setPage}
-            total={user.public_repos} // total de repositórios do GitHub
-            perPage={perPage}
-          />
-        </div>
+        {reposLoading ? (
+          <RepositoriosSkeleton />
+        ) : (
+          user && (
+            <ReposList
+              repos={repos}
+              favoriteRepos={favoriteRepos}
+              toggleFavoriteRepo={toggleFavoriteR}
+              page={page}
+              setPage={setPage}
+              perPage={perPage}
+              total={user.public_repos} // total de repositórios
+            />
+          )
+        )}
 
         {/* Coluna 3: Favoritos */}
         <div className="flex flex-col items-center">
           <div className="text-xl font-bold">Favoritos</div>
-          <div className=" ">
+
+          {/* barrasssssss de favoritos */}
+          {favoritesLoading ? (
+            <FavoritosSkeleton />
+          ) : (
             <Favoritos
-              favoriteRepos={favoriteRepos}
-              toggleFavoriteR={toggleFavoriteRepo}
               favoriteUsers={favoriteUsers}
-              toggleFavorite={toggleFavoriteUser}
+              toggleFavorite={toggleFavorite}
+              favoriteRepos={favoriteRepos}
+              toggleFavoriteR={toggleFavoriteR}
             />
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -13,19 +12,28 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
-import { AtSignIcon, Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
 
 import Favoritos from "./favoritosComp";
 import { User, Repo } from "@/app/types";
-import PaginationControls from "@/app/PaginationControls";
+
+import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
+import SearchResults from "./searchResults";
 
 export default function HomePage() {
   const [total, setTotal] = useState(0);
-
   const [page, setPage] = useState(1);
   const perPage = 30;
-
   const [users, setUsers] = useState<User[]>([]);
+  const [userLoading, setUserLoading] = useState(false);
+
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const form = useForm<{ username: string }>({
+    defaultValues: { username: "" },
+  });
+  ///////////////////////////////////////////////////////////////////////
+  // Estado para os usuários favoritos
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteUsers");
@@ -33,35 +41,6 @@ export default function HomePage() {
     }
     return [];
   });
-
-  const form = useForm<{ username: string }>({
-    defaultValues: { username: "" },
-  });
-
-  // Salvar favoritos no localStorage
-  useEffect(() => {
-    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  }, [favoriteUsers]);
-
-  async function handleSearch(data: { username: string }) {
-    if (!data.username) return;
-
-    const res = await fetch(
-      `https://api.github.com/search/users?q=${data.username}&page=${page}&per_page=${perPage}`
-    );
-    const result = await res.json();
-    setUsers(result.items || []);
-    setTotal(result.total_count || 0); // precisa disso
-  }
-
-  function toggleFavorite(user: User) {
-    const isFav = favoriteUsers.some((fav) => fav.login === user.login);
-    if (isFav) {
-      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
-    } else {
-      setFavoriteUsers([...favoriteUsers, user]);
-    }
-  }
   // Estado para os repositórios favoritos
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
     if (typeof window !== "undefined") {
@@ -70,12 +49,39 @@ export default function HomePage() {
     }
     return [];
   });
+  ///////////////////////////////////////////////////////////////////////
+  // Favorite Users loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteUsers");
+    if (stored) setFavoriteUsers(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui
+  }, []);
 
+  // Favorite Repos loading
+  useEffect(() => {
+    const stored = localStorage.getItem("favoriteRepos");
+    if (stored) setFavoriteRepos(JSON.parse(stored));
+    setFavoritesLoading(false); // <<< aqui também
+  }, []);
+  ///////////////////////////////////////////////////////////////////////
+  // Salvar favoritos no localStorage
+  useEffect(() => {
+    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
+  }, [favoriteUsers]);
   // Salvar favoritos de repositórios no localStorage
   useEffect(() => {
     localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
   }, [favoriteRepos]);
-
+  ///////////////////////////////////////////////////////////////////////
+  // Alternar favorito de usuario
+  function toggleFavorite(user: User) {
+    const isFav = favoriteUsers.some((fav) => fav.login === user.login);
+    if (isFav) {
+      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
+    } else {
+      setFavoriteUsers([...favoriteUsers, user]);
+    }
+  }
   // Alternar favorito de repositório
   function toggleFavoriteR(repo: Repo) {
     const isFav = favoriteRepos.some((fav) => fav.id === repo.id);
@@ -85,19 +91,41 @@ export default function HomePage() {
       setFavoriteRepos([...favoriteRepos, repo]);
     }
   }
+  ///////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (form.getValues("username")) {
       handleSearch({ username: form.getValues("username") });
     }
   }, [page]);
+
+  async function handleSearch(data: { username: string }) {
+    if (!data.username) return;
+    try {
+      setUserLoading(true);
+      setError(null);
+      const res = await fetch(
+        `/api/search/users?q=${encodeURIComponent(
+          data.username
+        )}&page=${page}&per_page=${perPage}`
+      );
+
+      if (!res.ok) throw new Error("Erro ao buscar usuários");
+      const json = await res.json();
+      setUsers(json.items);
+      setTotal(json.total);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError("Erro ao carregar usuários");
+      }
+    } finally {
+      setUserLoading(false);
+    }
+  }
+
   return (
-    <div
-      className="fixed top-0 left-0 flex flex-col w-full h-full"
-      style={{
-        backgroundSize: "cover",
-        backgroundImage: `url("/images/fundoReuniao2.jpg")`,
-      }}
-    >
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">
@@ -136,67 +164,31 @@ export default function HomePage() {
       {/* conteudo */}
       <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
         {/* resultados da pesquisa */}
-        <div className="w-[700px] h-[820]">
-          <div className="flex flex-col gap-1 w-full h-[700] overflow-auto">
-            {users.map((user) => (
-              <Card
-                key={user.login}
-                className="cursor-pointer hover:bg-muted transition "
-                style={{
-                  backgroundSize: "cover",
-                  backgroundImage: `url("/images/fundoReuniao3.avif")`,
-                }}
-              >
-                <CardContent className="flex flex-row items-center justify-between gap-4">
-                  <div
-                    onClick={() =>
-                      (window.location.href = `/github/user/${user.login}`)
-                    }
-                    className="flex flex-row items-center gap-2 cursor-pointer truncate"
-                  >
-                    <Avatar className="">
-                      <AvatarImage src={user.avatar_url} alt={user.login} />
-                    </Avatar>
-                    <span className="font-medium text-2xl">
-                      <p className="flex items-center gap-1">
-                        <AtSignIcon className="size-6" />
-                        {user.login}
-                      </p>
-                    </span>
-                  </div>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() => toggleFavorite(user)}
-                    className="p-0 bg-transparent hover:bg-transparent hover:text-yellow-500"
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        favoriteUsers.some((fav) => fav.login === user.login)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-400"
-                      }`}
-                    />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          {total > 0 && (
-            <PaginationControls
-              page={page}
-              setPage={setPage}
-              total={total}
-              perPage={perPage}
-            />
-          )}
-        </div>
+        {userLoading ? (
+          <PesquisaSkeleton />
+        ) : (
+          <SearchResults
+            users={users}
+            page={page}
+            setPage={setPage}
+            total={total}
+            perPage={perPage}
+            favoriteUsers={favoriteUsers}
+            toggleFavorite={toggleFavorite}
+          />
+        )}
+
         {/* barrasssssss de favoritos */}
-        <Favoritos
-          favoriteUsers={favoriteUsers}
-          toggleFavorite={toggleFavorite}
-          favoriteRepos={favoriteRepos}
-          toggleFavoriteR={toggleFavoriteR}
-        />
+        {favoritesLoading ? (
+          <FavoritosSkeleton />
+        ) : (
+          <Favoritos
+            favoriteUsers={favoriteUsers}
+            toggleFavorite={toggleFavorite}
+            favoriteRepos={favoriteRepos}
+            toggleFavoriteR={toggleFavoriteR}
+          />
+        )}
       </div>
     </div>
   );
