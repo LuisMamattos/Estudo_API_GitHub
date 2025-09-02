@@ -19,6 +19,7 @@ import { User, Repo } from "@/app/types";
 
 import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
 import SearchResults from "./searchResults";
+import { bg6 } from "@/app/estilos";
 
 export default function HomePage() {
   const [total, setTotal] = useState(0);
@@ -125,7 +126,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full" style={bg6}>
       {/* Barra superior */}
       <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
         <h1 className="text-2xl font-bold text-amber-50 truncate">

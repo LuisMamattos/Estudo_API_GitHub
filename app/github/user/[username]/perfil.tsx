@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { AtSignIcon, MapPin, Github } from "lucide-react";
 import { User } from "@/app/types"; // ajusta o caminho se teu tipo estiver em outro lugar
+import { bg7 } from "@/app/estilos";
 
 export default function PerfilCard({ user }: { user: User }) {
   return (
     <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
       <div className="text-xl font-bold ">Perfil</div>
       <div className="flex-1 w-full ">
-        <Card>
+        <Card style={bg7}>
           <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
             <div className="flex flex-col items-center text-center w-full">
               <Avatar className="w-full h-full">

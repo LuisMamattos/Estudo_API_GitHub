@@ -4,6 +4,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AtSignIcon, Star } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { User } from "@/app/types";
+import { bg5 } from "@/app/estilos";
 
 export default function SearchResults({
   users,
@@ -32,6 +33,7 @@ export default function SearchResults({
             }
             key={user.login}
             className="cursor-pointer hover:bg-muted transition"
+            style={bg5}
           >
             <CardContent className="flex flex-row items-center justify-between gap-4">
               <div className="flex flex-row items-center gap-2 cursor-pointer truncate">
