@@ -27,16 +27,14 @@ export default function SearchResults({
       <div className="flex flex-col gap-1 w-full h-[700px] overflow-auto">
         {users.map((user) => (
           <Card
+            onClick={() =>
+              (window.location.href = `/github/user/${user.login}`)
+            }
             key={user.login}
             className="cursor-pointer hover:bg-muted transition"
           >
             <CardContent className="flex flex-row items-center justify-between gap-4">
-              <div
-                onClick={() =>
-                  (window.location.href = `/github/user/${user.login}`)
-                }
-                className="flex flex-row items-center gap-2 cursor-pointer truncate"
-              >
+              <div className="flex flex-row items-center gap-2 cursor-pointer truncate">
                 <Avatar>
                   <AvatarImage src={user.avatar_url} alt={user.login} />
                 </Avatar>
@@ -49,8 +47,11 @@ export default function SearchResults({
               </div>
               <Button
                 variant="ghost"
-                onClick={() => toggleFavorite(user)}
-                className="p-0 bg-transparent hover:bg-transparent hover:text-yellow-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(user);
+                }}
+                className="p-0 y-50 bg-transparent hover:bg-transparent hover:text-yellow-500"
               >
                 <Star
                   className={`w-5 h-5 ${

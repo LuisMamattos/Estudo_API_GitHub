@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { Star, Utensils, Code } from "lucide-react";
+import { Star, Utensils, Code, ExternalLink } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { Repo } from "@/app/types";
 
@@ -42,9 +42,10 @@ export default function ReposList({
               <Link
                 href={repo.html_url}
                 target="_blank"
-                className="font-medium text-primary truncate"
+                className="flex items-center gap-1 font-medium text-primary truncate"
               >
                 {repo.name}
+                <ExternalLink className="w-4 h-4 text-gray-600 " />
               </Link>
 
               {/* Botão de favoritar */}
