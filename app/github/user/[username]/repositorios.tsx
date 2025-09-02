@@ -11,6 +11,7 @@ import {
 import { Star, Utensils, Code, ExternalLink } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { Repo } from "@/app/types";
+import { bg8 } from "@/app/estilos";
 
 interface ReposListProps {
   repos: Repo[];
@@ -37,7 +38,7 @@ export default function ReposList({
 
       <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
         {repos.map((repo) => (
-          <Card key={repo.id}>
+          <Card key={repo.id} style={bg8}>
             <CardHeader className="flex justify-between items-center">
               <Link
                 href={repo.html_url}

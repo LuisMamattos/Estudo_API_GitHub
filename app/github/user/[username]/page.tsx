@@ -16,6 +16,8 @@ import {
 import PerfilCard from "./perfil";
 import ReposList from "./repositorios";
 
+import { bg9 } from "@/app/estilos";
+
 interface Props {
   params: Promise<{ username: string }>;
 }
@@ -173,23 +175,8 @@ export default function UserPage({ params }: Props) {
       setFavoriteRepos([...favoriteRepos, repo]);
     }
   }
-  ////////////////////////////////////////////////////////////////////////////////
-  // Favorite Users
-  // useEffect(() => {
-  //   const stored = localStorage.getItem("favoriteUsers");
-  //   if (stored) setFavoriteUsers(JSON.parse(stored));
-  //   setFavoritesLoading(false); // <<< aqui
-  // }, []);
-
-  // Favorite Repos
-  // useEffect(() => {
-  //   const stored = localStorage.getItem("favoriteRepos");
-  //   if (stored) setFavoriteRepos(JSON.parse(stored));
-  //   setFavoritesLoading(false); // <<< aqui também
-  // }, []);
-
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full">
+    <div className="fixed top-0 left-0 flex flex-col w-full h-full" style={bg9}>
       {/* Cabeçalho (literalmente so uma seta) */}
       <div className=" p-0 m-0 flex items-center justify-between">
         <Button variant="link" asChild>
