@@ -17,7 +17,8 @@ import PerfilCard from "./perfil";
 import ReposList from "./repositorios";
 
 import { bg9 } from "@/app/estilos";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query"; //aq
+import { userProfileQuery, userReposQuery } from "@/lib/query-options"; //aq
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -37,16 +38,9 @@ export default function UserPage({ params }: Props) {
   const {
     data: user,
     isLoading: userLoading,
-    isError: isUserError,
-    error: userError,
-  } = useQuery<User>({
-    queryKey: ["user", username],
-    queryFn: async () => {
-      const res = await fetch(`/api/users/${username}`);
-      if (!res.ok) throw new Error("Erro ao carregar perfil");
-      return res.json();
-    },
-  });
+    isError: isUserError, //aq
+    error: userError, //aq
+  } = useQuery(userProfileQuery(username));
 
   // Loading e Error dos repositórios
 
@@ -56,16 +50,7 @@ export default function UserPage({ params }: Props) {
     isLoading: reposLoading,
     isError: isReposError,
     error: reposError,
-  } = useQuery<Repo[]>({
-    queryKey: ["repos", username, page],
-    queryFn: async () => {
-      const res = await fetch(
-        `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
-      );
-      if (!res.ok) throw new Error("Erro ao carregar repositórios");
-      return res.json();
-    },
-  });
+  } = useQuery(userReposQuery(username, page, perPage));
 
   ////////////////////////////////////////////////////////////////////////////////
   // Estado para os usuários favoritos
@@ -147,11 +132,19 @@ export default function UserPage({ params }: Props) {
 
       <div className="flex flex-row gap-1 justify-between p-3">
         {/* Coluna 1: Card com usuário */}
-        {userLoading ? <PerfilSkeleton /> : user && <PerfilCard user={user} />}
+        {userLoading ? (
+          <PerfilSkeleton />
+        ) : isUserError ? (
+          <div className="text-red-600">{userError?.message}</div>
+        ) : (
+          user && <PerfilCard user={user} />
+        )}
 
         {/* Coluna 2: Repos */}
         {reposLoading ? (
           <RepositoriosSkeleton />
+        ) : isReposError ? (
+          <div className="text-red-600">{reposError?.message}</div>
         ) : (
           user && (
             <ReposList
@@ -161,7 +154,7 @@ export default function UserPage({ params }: Props) {
               page={page}
               setPage={setPage}
               perPage={perPage}
-              total={user.public_repos} // total de repositórios
+              total={user.public_repos}
             />
           )
         )}

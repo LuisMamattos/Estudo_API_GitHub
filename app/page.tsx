@@ -21,7 +21,12 @@ import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
 import SearchResults from "./searchResults";
 import { bg6 } from "@/app/estilos";
 
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import {
+  usersQuery,
+  userProfileQuery,
+  userReposQuery,
+} from "@/lib/query-options"; //aq
 
 export default function HomePage() {
   const [total, setTotal] = useState(0);
@@ -102,22 +107,7 @@ export default function HomePage() {
     isLoading: userLoading,
     isError,
     error,
-  } = useQuery({
-    queryKey: ["searchUsers", username, page],
-    queryFn: async () => {
-      if (!username) return [];
-      const res = await fetch(
-        `/api/search/users?q=${encodeURIComponent(
-          username
-        )}&page=${page}&per_page=${perPage}`
-      );
-      if (!res.ok) throw new Error("Erro ao buscar usuários");
-      const json = await res.json();
-      setTotal(json.total);
-      return json.items;
-    },
-    enabled: !!username, // só busca se username existir
-  });
+  } = useQuery(usersQuery(username, page, perPage, setTotal));
 
   ///////////////////////////////////////////////////////////////////////
   // Render

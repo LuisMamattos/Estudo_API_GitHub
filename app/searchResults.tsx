@@ -5,6 +5,9 @@ import { AtSignIcon, Star } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { User } from "@/app/types";
 import { bg5 } from "@/app/estilos";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { userProfileQuery } from "@/lib/query-options";
 
 export default function SearchResults({
   users,
@@ -23,15 +26,21 @@ export default function SearchResults({
   favoriteUsers: User[];
   toggleFavorite: (user: User) => void;
 }) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   return (
     <div className="w-[700px] h-[820px]">
       <div className="flex flex-col gap-1 w-full h-[700px] overflow-auto">
         {users.map((user) => (
           <Card
-            onClick={() =>
-              (window.location.href = `/github/user/${user.login}`)
-            }
             key={user.login}
+            onClick={async () => {
+              // baixa e coloca o perfil completo no cache, com as configs do userProfileQuery
+              await queryClient.prefetchQuery(userProfileQuery(user.login));
+
+              // navega sem reload
+              router.push(`/github/user/${user.login}`);
+            }}
             className="cursor-pointer hover:bg-muted transition"
             style={bg5}
           >

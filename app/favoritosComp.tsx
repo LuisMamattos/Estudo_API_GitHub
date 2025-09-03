@@ -6,6 +6,9 @@ import { Star as StarIcon, AtSignIcon } from "lucide-react";
 import { User, Repo } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { bg1, bg2, bg3, bg4 } from "@/app/estilos";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { userProfileQuery } from "@/lib/query-options";
 
 interface FavoritosProps {
   // Usuários favoritos
@@ -22,6 +25,8 @@ export default function Favoritos({
   favoriteUsers,
   toggleFavorite,
 }: Readonly<FavoritosProps>) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   return (
     <div className="flex flex-col gap-1">
       {/* Perfis favoritos */}
@@ -39,13 +44,15 @@ export default function Favoritos({
               key={user.login}
               className="flex p-1 hover:bg-muted cursor-pointer"
               style={bg3}
+              onClick={async () => {
+                // baixa e coloca o perfil completo no cache, com as configs do userProfileQuery
+                await queryClient.prefetchQuery(userProfileQuery(user.login));
+
+                // navega sem reload
+                router.push(`/github/user/${user.login}`);
+              }}
             >
-              <CardContent
-                onClick={() =>
-                  (window.location.href = `/github/user/${user.login}`)
-                }
-                className="flex items-center gap-2 font-semibold truncate justify-between"
-              >
+              <CardContent className="flex items-center gap-2 font-semibold truncate justify-between">
                 <div className="flex items-center truncate">
                   <Avatar className="w-8 h-8 flex-shrink-0 border-1 border-blue-700">
                     <AvatarImage src={user.avatar_url} alt={user.login} />
