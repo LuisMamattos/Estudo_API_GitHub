@@ -21,20 +21,24 @@ import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
 import SearchResults from "./searchResults";
 import { bg6 } from "@/app/estilos";
 
+import { useQuery } from "@tanstack/react-query";
+import {
+  usersQuery,
+  userProfileQuery,
+  userReposQuery,
+} from "@/lib/query-options"; //aq
+
 export default function HomePage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const perPage = 30;
-  const [users, setUsers] = useState<User[]>([]);
-  const [userLoading, setUserLoading] = useState(false);
 
-  const [favoritesLoading, setFavoritesLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const form = useForm<{ username: string }>({
     defaultValues: { username: "" },
   });
+
   ///////////////////////////////////////////////////////////////////////
-  // Estado para os usuários favoritos
+  // Estado para favoritos
   const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteUsers");
@@ -42,7 +46,7 @@ export default function HomePage() {
     }
     return [];
   });
-  // Estado para os repositórios favoritos
+
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteRepos");
@@ -50,31 +54,32 @@ export default function HomePage() {
     }
     return [];
   });
+
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
+
   ///////////////////////////////////////////////////////////////////////
-  // Favorite Users loading
+  // Carregar favoritos do localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("favoriteUsers");
-    if (stored) setFavoriteUsers(JSON.parse(stored));
-    setFavoritesLoading(false); // <<< aqui
+    const storedUsers = localStorage.getItem("favoriteUsers");
+    const storedRepos = localStorage.getItem("favoriteRepos");
+
+    if (storedUsers) setFavoriteUsers(JSON.parse(storedUsers));
+    if (storedRepos) setFavoriteRepos(JSON.parse(storedRepos));
+
+    setFavoritesLoading(false);
   }, []);
 
-  // Favorite Repos loading
-  useEffect(() => {
-    const stored = localStorage.getItem("favoriteRepos");
-    if (stored) setFavoriteRepos(JSON.parse(stored));
-    setFavoritesLoading(false); // <<< aqui também
-  }, []);
-  ///////////////////////////////////////////////////////////////////////
   // Salvar favoritos no localStorage
   useEffect(() => {
     localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
   }, [favoriteUsers]);
-  // Salvar favoritos de repositórios no localStorage
+
   useEffect(() => {
     localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
   }, [favoriteRepos]);
+
   ///////////////////////////////////////////////////////////////////////
-  // Alternar favorito de usuario
+  // Alternar favoritos
   function toggleFavorite(user: User) {
     const isFav = favoriteUsers.some((fav) => fav.login === user.login);
     if (isFav) {
@@ -83,7 +88,7 @@ export default function HomePage() {
       setFavoriteUsers([...favoriteUsers, user]);
     }
   }
-  // Alternar favorito de repositório
+
   function toggleFavoriteR(repo: Repo) {
     const isFav = favoriteRepos.some((fav) => fav.id === repo.id);
     if (isFav) {
@@ -92,39 +97,20 @@ export default function HomePage() {
       setFavoriteRepos([...favoriteRepos, repo]);
     }
   }
+
   ///////////////////////////////////////////////////////////////////////
-  useEffect(() => {
-    if (form.getValues("username")) {
-      handleSearch({ username: form.getValues("username") });
-    }
-  }, [page]);
+  // React Query: buscar usuários
+  const username = form.getValues("username");
+  const [searchUsername, setSearchUsername] = useState("");
+  const {
+    data: users = [],
+    isLoading: userLoading,
+    isError,
+    error,
+  } = useQuery(usersQuery(username, page, perPage, setTotal));
 
-  async function handleSearch(data: { username: string }) {
-    if (!data.username) return;
-    try {
-      setUserLoading(true);
-      setError(null);
-      const res = await fetch(
-        `/api/search/users?q=${encodeURIComponent(
-          data.username
-        )}&page=${page}&per_page=${perPage}`
-      );
-
-      if (!res.ok) throw new Error("Erro ao buscar usuários");
-      const json = await res.json();
-      setUsers(json.items);
-      setTotal(json.total);
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        setError(e.message);
-      } else {
-        setError("Erro ao carregar usuários");
-      }
-    } finally {
-      setUserLoading(false);
-    }
-  }
-
+  ///////////////////////////////////////////////////////////////////////
+  // Render
   return (
     <div className="fixed top-0 left-0 flex flex-col w-full h-full" style={bg6}>
       {/* Barra superior */}
@@ -135,7 +121,10 @@ export default function HomePage() {
         <div className="flex items-center gap-4">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSearch)}
+              onSubmit={form.handleSubmit((data) => {
+                setSearchUsername(data.username);
+                setPage(1);
+              })}
               className="flex gap-2"
             >
               <FormField
@@ -162,11 +151,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* conteudo */}
-      <div className=" flex space-y-6 gap-1 justify-between text-center p-3">
-        {/* resultados da pesquisa */}
+      {/* Conteúdo */}
+      <div className="flex space-y-6 gap-1 justify-between text-center p-3">
+        {/* Resultados da pesquisa */}
         {userLoading ? (
           <PesquisaSkeleton />
+        ) : isError ? (
+          <span>{(error as Error).message}</span>
         ) : (
           <SearchResults
             users={users}
@@ -179,7 +170,7 @@ export default function HomePage() {
           />
         )}
 
-        {/* barrasssssss de favoritos */}
+        {/* Favoritos */}
         {favoritesLoading ? (
           <FavoritosSkeleton />
         ) : (

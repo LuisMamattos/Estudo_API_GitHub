@@ -17,6 +17,8 @@ import PerfilCard from "./perfil";
 import ReposList from "./repositorios";
 
 import { bg9 } from "@/app/estilos";
+import { useQuery } from "@tanstack/react-query"; //aq
+import { userProfileQuery, userReposQuery } from "@/lib/query-options"; //aq
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -25,10 +27,6 @@ interface Props {
 export default function UserPage({ params }: Props) {
   const { username } = use(params);
 
-  const [user, setUser] = useState<User | null>(null);
-  const [repos, setRepos] = useState<Repo[]>([]);
-  const [userLoading, setUserLoading] = useState(true);
-  const [reposLoading, setReposLoading] = useState(true);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   const [page, setPage] = useState(1);
@@ -36,77 +34,23 @@ export default function UserPage({ params }: Props) {
 
   // Loading e Error do perfil do usuário
 
-  const [userError, setUserError] = useState<string | null>(null);
-
   // Perfil
-  useEffect(() => {
-    let alive = true;
-
-    const fetchUser = async () => {
-      setUserLoading(true);
-      setUserError(null);
-
-      try {
-        const res = await fetch(`/api/users/${username}`);
-        if (!res.ok) throw new Error("Erro ao carregar perfil");
-
-        const data: User = await res.json(); // tipa corretamente o retorno
-        if (alive) setUser(data);
-      } catch (e: unknown) {
-        if (!alive) return;
-
-        if (e instanceof Error) {
-          setUserError(e.message);
-        } else {
-          setUserError("Erro desconhecido ao carregar perfil");
-        }
-      } finally {
-        if (alive) setUserLoading(false);
-      }
-    };
-
-    fetchUser();
-
-    return () => {
-      alive = false; // cancela atualização se o componente desmontar
-    };
-  }, [username]);
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError: isUserError, //aq
+    error: userError, //aq
+  } = useQuery(userProfileQuery(username));
 
   // Loading e Error dos repositórios
-  const [reposError, setReposError] = useState<string | null>(null);
 
   // Repos com paginação
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      setReposLoading(true);
-      setReposError(null);
-      try {
-        const res = await fetch(
-          `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
-        );
-        if (!res.ok) throw new Error("Erro ao carregar repositórios");
-
-        const data = await res.json();
-        if (alive) setRepos(data);
-      } catch (e: unknown) {
-        if (alive) {
-          if (e instanceof Error) {
-            setReposError(e.message);
-          } else {
-            setReposError("Outro tipo de erro ao carregar repositórios");
-          }
-        }
-      } finally {
-        if (alive) setReposLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [username, page]);
+  const {
+    data: repos = [],
+    isLoading: reposLoading,
+    isError: isReposError,
+    error: reposError,
+  } = useQuery(userReposQuery(username, page, perPage));
 
   ////////////////////////////////////////////////////////////////////////////////
   // Estado para os usuários favoritos
@@ -188,11 +132,19 @@ export default function UserPage({ params }: Props) {
 
       <div className="flex flex-row gap-1 justify-between p-3">
         {/* Coluna 1: Card com usuário */}
-        {userLoading ? <PerfilSkeleton /> : user && <PerfilCard user={user} />}
+        {userLoading ? (
+          <PerfilSkeleton />
+        ) : isUserError ? (
+          <div className="text-red-600">{userError?.message}</div>
+        ) : (
+          user && <PerfilCard user={user} />
+        )}
 
         {/* Coluna 2: Repos */}
         {reposLoading ? (
           <RepositoriosSkeleton />
+        ) : isReposError ? (
+          <div className="text-red-600">{reposError?.message}</div>
         ) : (
           user && (
             <ReposList
@@ -202,7 +154,7 @@ export default function UserPage({ params }: Props) {
               page={page}
               setPage={setPage}
               perPage={perPage}
-              total={user.public_repos} // total de repositórios
+              total={user.public_repos}
             />
           )
         )}
