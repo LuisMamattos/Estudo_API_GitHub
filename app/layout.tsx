@@ -1,4 +1,5 @@
 import "./globals.css";
+import Providers from "./providers"; ///////
 
 export const metadata = {
   title: "GitHub Profiles",
@@ -13,7 +14,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="bg-background text-foreground">
-        <main className="container mx-auto p-6">{children}</main>
+        <Providers>
+          <main className="container mx-auto p-6">{children}</main>
+        </Providers>
       </body>
     </html>
   );

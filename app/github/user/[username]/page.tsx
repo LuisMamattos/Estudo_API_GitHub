@@ -17,6 +17,7 @@ import PerfilCard from "./perfil";
 import ReposList from "./repositorios";
 
 import { bg9 } from "@/app/estilos";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -25,10 +26,6 @@ interface Props {
 export default function UserPage({ params }: Props) {
   const { username } = use(params);
 
-  const [user, setUser] = useState<User | null>(null);
-  const [repos, setRepos] = useState<Repo[]>([]);
-  const [userLoading, setUserLoading] = useState(true);
-  const [reposLoading, setReposLoading] = useState(true);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   const [page, setPage] = useState(1);
@@ -36,77 +33,39 @@ export default function UserPage({ params }: Props) {
 
   // Loading e Error do perfil do usuário
 
-  const [userError, setUserError] = useState<string | null>(null);
-
   // Perfil
-  useEffect(() => {
-    let alive = true;
-
-    const fetchUser = async () => {
-      setUserLoading(true);
-      setUserError(null);
-
-      try {
-        const res = await fetch(`/api/users/${username}`);
-        if (!res.ok) throw new Error("Erro ao carregar perfil");
-
-        const data: User = await res.json(); // tipa corretamente o retorno
-        if (alive) setUser(data);
-      } catch (e: unknown) {
-        if (!alive) return;
-
-        if (e instanceof Error) {
-          setUserError(e.message);
-        } else {
-          setUserError("Erro desconhecido ao carregar perfil");
-        }
-      } finally {
-        if (alive) setUserLoading(false);
-      }
-    };
-
-    fetchUser();
-
-    return () => {
-      alive = false; // cancela atualização se o componente desmontar
-    };
-  }, [username]);
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError: isUserError,
+    error: userError,
+  } = useQuery<User>({
+    queryKey: ["user", username],
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${username}`);
+      if (!res.ok) throw new Error("Erro ao carregar perfil");
+      return res.json();
+    },
+  });
 
   // Loading e Error dos repositórios
-  const [reposError, setReposError] = useState<string | null>(null);
 
   // Repos com paginação
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      setReposLoading(true);
-      setReposError(null);
-      try {
-        const res = await fetch(
-          `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
-        );
-        if (!res.ok) throw new Error("Erro ao carregar repositórios");
-
-        const data = await res.json();
-        if (alive) setRepos(data);
-      } catch (e: unknown) {
-        if (alive) {
-          if (e instanceof Error) {
-            setReposError(e.message);
-          } else {
-            setReposError("Outro tipo de erro ao carregar repositórios");
-          }
-        }
-      } finally {
-        if (alive) setReposLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [username, page]);
+  const {
+    data: repos = [],
+    isLoading: reposLoading,
+    isError: isReposError,
+    error: reposError,
+  } = useQuery<Repo[]>({
+    queryKey: ["repos", username, page],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/users/${username}/repos?page=${page}&per_page=${perPage}`
+      );
+      if (!res.ok) throw new Error("Erro ao carregar repositórios");
+      return res.json();
+    },
+  });
 
   ////////////////////////////////////////////////////////////////////////////////
   // Estado para os usuários favoritos
