@@ -7,31 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Star as StarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-//////////////////////HomePage///////////////////////
 
-/* conteudo */
-
-export function PesquisaSkeleton() {
-  /* resultados da pesquisa */
-  return (
-    <div className="w-[700px] h-[820px]">
-      <div className="flex flex-col gap-1 w-full h-[700] overflow-auto">
-        {Array.from({ length: 30 }).map((_, index) => (
-          <Card key={index}>
-            <CardContent className="flex flex-row items-center justify-between gap-4">
-              <div className="flex flex-row items-center gap-2">
-                <Skeleton className="size-[36] rounded-full" />
-                <Skeleton className=" w-[300] h-[30] rounded-xl" />
-              </div>
-
-              <StarIcon className="size-5 mr-2 fill-gray-200 stroke-gray-200" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
 export function FavoritosSkeleton() {
   /* favoritos do storage */
   return (
@@ -70,8 +46,7 @@ export function FavoritosSkeleton() {
 export function PerfilSkeleton() {
   /* perfil */
   return (
-    <div className="flex flex-col w-full max-w-xl min-w-50 items-center">
-      <div className="text-xl text-gray-200 font-bold ">Perfil</div>
+    <div className="flex flex-col w-full max-w-[400px] min-w-50 items-center">
       <div className="flex-1 w-full ">
         <Card>
           <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
@@ -95,8 +70,6 @@ export function RepositoriosSkeleton() {
   /* repositorios */
   return (
     <div className="flex flex-col w-full items-center">
-      <div className="text-xl text-gray-200 font-bold">Repositórios</div>
-
       <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
         {Array.from({ length: 30 }).map((_, index) => (
           <Card key={index}>
