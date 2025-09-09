@@ -2,7 +2,7 @@
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, Suspense, useState } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { FavoritesProvider } from "@/app/context/FavoritesContext";
@@ -13,7 +13,9 @@ export default function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
         <SidebarProvider>
-          <FavoritesProvider>{children}</FavoritesProvider>
+          <FavoritesProvider>
+            <Suspense fallback={<div>Carregando...</div>}>{children}</Suspense>
+          </FavoritesProvider>
         </SidebarProvider>
       </NuqsAdapter>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "./providers"; ///////
 import { AppWindow } from "lucide-react";
 import AppSideBar from "./side-bar";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "GitHub Profiles",
@@ -22,7 +23,7 @@ export default function RootLayout({
           <main className="container mx-auto p-6">
             <SidebarTrigger className="z-99999" />
 
-            {children}
+            <Suspense fallback={<div>Carregando...</div>}>{children}</Suspense>
           </main>
         </Providers>
       </body>

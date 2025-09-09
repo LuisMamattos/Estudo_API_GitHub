@@ -3,10 +3,8 @@
 import { Suspense } from "react";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
-
 import { SearchResults, PesquisaSkeleton } from "./searchResults";
 import { searchUsersQuery } from "@/lib/query-options";
-import { useFavorites } from "@/app/context/FavoritesContext";
 import { Separator } from "@/components/ui/separator";
 
 export default function HomePage() {
@@ -20,8 +18,6 @@ export default function HomePage() {
     ...queryOptions,
     enabled: username.trim() !== "", // adiciona essa opção extra
   });
-
-  const favorites = useFavorites();
 
   return (
     <div className="flex flex-col w-full h-full">

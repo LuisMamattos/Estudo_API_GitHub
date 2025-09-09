@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AtSignIcon, Star, StarIcon } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
-import { User } from "@/app/types";
 import { bg5 } from "@/app/estilos";
 import {
   unsetMarker,
@@ -15,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { searchUsersQuery, userProfileQuery } from "@/lib/query-options";
 import { parseAsString, useQueryState } from "nuqs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
 import { useFavorites } from "@/app/context/FavoritesContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
