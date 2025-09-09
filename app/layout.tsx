@@ -1,9 +1,10 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import "./globals.css";
 import Providers from "./providers"; ///////
-import { AppWindow } from "lucide-react";
 import AppSideBar from "./side-bar";
 import { Suspense } from "react";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 export const metadata = {
   title: "GitHub Profiles",
@@ -18,14 +19,24 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="bg-background text-foreground ">
-        <Providers>
-          <AppSideBar />
-          <main className="container mx-auto p-6">
-            <SidebarTrigger className="z-99999" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>
+            <AppSideBar />
+            <main className="container mx-auto p-6">
+              <SidebarTrigger className="" />
+              <ModeToggle />
 
-            <Suspense fallback={<div>Carregando...</div>}>{children}</Suspense>
-          </main>
-        </Providers>
+              <Suspense fallback={<div>Carregando...</div>}>
+                {children}
+              </Suspense>
+            </main>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

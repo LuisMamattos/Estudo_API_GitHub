@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { Star, Utensils, Code, ExternalLink } from "lucide-react";
+import { Star, Utensils, Code, ExternalLink, Pin } from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { Repo } from "@/app/types";
 import { bg8 } from "@/app/estilos";
@@ -56,10 +56,10 @@ export default function ReposList({
                   variant="ghost"
                   onClick={() => toggleFavoriteRepo(repo)}
                 >
-                  <Star
+                  <Pin
                     className={`w-5 h-5 ${
                       favoriteRepos.some((fav) => fav.id === repo.id)
-                        ? "fill-yellow-400 text-yellow-400"
+                        ? "fill-yellow-400 text-black"
                         : ""
                     }`}
                   />

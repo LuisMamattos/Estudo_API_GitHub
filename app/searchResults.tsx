@@ -75,7 +75,7 @@ export function SearchResults({
                 // navega sem reload
                 router.push(`/github/user/${user.login}`);
               }}
-              className="cursor-pointer mr-3 hover:bg-muted transition"
+              className="cursor-pointer mr-3 hover:bg-muted transition flex justify-center h-[65px]"
               style={bg5}
             >
               <CardContent className="flex flex-row items-center justify-between gap-4">
@@ -129,20 +129,25 @@ export function PesquisaSkeleton() {
   /* resultados da pesquisa */
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-1 w-full h-[600] overflow-auto">
-        {Array.from({ length: 30 }).map((_, index) => (
-          <Card key={index}>
-            <CardContent className="flex flex-row items-center justify-between gap-4">
-              <div className="flex flex-row items-center gap-2">
-                <Skeleton className="size-[36] rounded-full" />
-                <Skeleton className=" w-[300] h-[30] rounded-xl" />
-              </div>
+      <ScrollArea className="h-[600] ">
+        <div className="flex flex-col gap-1 mr-3">
+          {Array.from({ length: 30 }).map((_, index) => (
+            <Card
+              key={index}
+              className="h-[65px] flex justify-center rounded-md"
+            >
+              <CardContent className="flex flex-row items-center justify-between gap-4">
+                <div className="flex flex-row items-center gap-2">
+                  <Skeleton className="size-[36] rounded-full" />
+                  <Skeleton className=" w-[300] h-[30] rounded-xl" />
+                </div>
 
-              <StarIcon className="size-5 mr-2 fill-gray-200 stroke-gray-200" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <StarIcon className="size-4 mr-[20px] fill-gray-200 stroke-gray-200" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 }
