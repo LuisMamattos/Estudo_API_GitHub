@@ -25,6 +25,10 @@ import {
   ArrowLeftIcon,
   AtSignIcon,
   ChevronRight,
+  Icon,
+  Info,
+  Pin,
+  PinOff,
   Search,
   StarIcon,
 } from "lucide-react";
@@ -54,6 +58,11 @@ import {
 } from "@/components/ui/context-menu";
 import { useQuery } from "@tanstack/react-query";
 import { userReposQuery } from "@/lib/query-options";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function AppSideBar() {
   const router = useRouter();
@@ -121,7 +130,7 @@ export default function AppSideBar() {
                             </FormItem>
                           )}
                         />
-                        <Button className="bg-blue-950" type="submit">
+                        <Button type="submit">
                           <Search />
                         </Button>
                       </form>
@@ -157,6 +166,19 @@ export default function AppSideBar() {
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton className="font-bold ">
                       Usuários Favoritos
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" className="h-2 w-2">
+                            <Info className="size-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Clique com o botão direito nos perfis para ver
+                            repositórios com mais estrelas
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -197,12 +219,12 @@ export default function AppSideBar() {
                             <SidebarMenuSubItem key={repo.id}>
                               <SidebarMenuSubButton asChild>
                                 <div
-                                  className="flex items-center justify-between min-h-[50px] gap-1 cursor-pointer hover:bg-muted rounded"
+                                  className="flex items-center justify-between min-h-[50px] gap-1 cursor-pointer hover:bg-muted"
                                   onClick={() =>
                                     window.open(repo.html_url, "_blank")
                                   }
                                 >
-                                  <div className="flex flex-col truncate">
+                                  <div className="flex flex-col truncate p-1">
                                     <span className="font-semibold truncate">
                                       {repo.name}
                                     </span>
@@ -223,15 +245,7 @@ export default function AppSideBar() {
                                       toggleFavoriteR(repo);
                                     }}
                                   >
-                                    <StarIcon
-                                      className={`w-4 h-4 ${
-                                        favoriteRepos.some(
-                                          (fav) => fav.id === repo.id
-                                        )
-                                          ? "fill-yellow-400 text-yellow-400"
-                                          : "text-gray-400"
-                                      }`}
-                                    />
+                                    <PinOff className="w-4 h-4text-black" />
                                   </Button>
                                 </div>
                               </SidebarMenuSubButton>

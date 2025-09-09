@@ -16,7 +16,7 @@ export default function HomePage() {
 
   const { data: userSearch, isLoading: userLoading } = useQuery({
     ...queryOptions,
-    enabled: username.trim() !== "", // adiciona essa opção extra
+    enabled: username.trim() !== "",
   });
 
   return (
@@ -25,14 +25,16 @@ export default function HomePage() {
         <div className="w-full">
           <h1 className="font-bold mb-4 text-4xl">Usuários Encontrados</h1>
           <Separator className="my-4 w-full bg-black " />
-          <Suspense fallback={<PesquisaSkeleton />}>
-            <SearchResults
-              page={page}
-              setPage={setPage}
-              total={userSearch?.total ?? 0}
-              perPage={perPage}
-            />
-          </Suspense>
+          <div className="flex">
+            <Suspense fallback={<PesquisaSkeleton />}>
+              <SearchResults
+                page={page}
+                setPage={setPage}
+                total={userSearch?.total ?? 0}
+                perPage={perPage}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>
