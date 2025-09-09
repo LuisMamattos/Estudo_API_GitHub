@@ -31,9 +31,7 @@ export default function RootLayout({
               <SidebarTrigger className="" />
               <ModeToggle />
 
-              <Suspense fallback={<div>Carregando...</div>}>
-                {children}
-              </Suspense>
+              {children}
             </main>
           </Providers>
         </ThemeProvider>
