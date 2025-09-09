@@ -1,186 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormItem,
-  FormControl,
-  FormMessage,
-  FormField,
-} from "@/components/ui/form";
-import { Search } from "lucide-react";
-
-import Favoritos from "./favoritosComp";
-import { User, Repo } from "@/app/types";
-
-import { FavoritosSkeleton, PesquisaSkeleton } from "./skeletons";
-import SearchResults from "./searchResults";
-import { bg6 } from "@/app/estilos";
-
+import { Suspense } from "react";
+import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
-import {
-  usersQuery,
-  userProfileQuery,
-  userReposQuery,
-} from "@/lib/query-options"; //aq
+import { SearchResults, PesquisaSkeleton } from "./searchResults";
+import { searchUsersQuery } from "@/lib/query-options";
+import { Separator } from "@/components/ui/separator";
 
 export default function HomePage() {
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const [username] = useQueryState("username", parseAsString.withDefault(""));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const perPage = 30;
 
-  const form = useForm<{ username: string }>({
-    defaultValues: { username: "" },
+  const queryOptions = searchUsersQuery(username, page, perPage);
+
+  const { data: userSearch, isLoading: userLoading } = useQuery({
+    ...queryOptions,
+    enabled: username.trim() !== "", // adiciona essa opção extra
   });
 
-  ///////////////////////////////////////////////////////////////////////
-  // Estado para favoritos
-  const [favoriteUsers, setFavoriteUsers] = useState<User[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteUsers");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
-
-  const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("favoriteRepos");
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
-
-  const [favoritesLoading, setFavoritesLoading] = useState(true);
-
-  ///////////////////////////////////////////////////////////////////////
-  // Carregar favoritos do localStorage
-  useEffect(() => {
-    const storedUsers = localStorage.getItem("favoriteUsers");
-    const storedRepos = localStorage.getItem("favoriteRepos");
-
-    if (storedUsers) setFavoriteUsers(JSON.parse(storedUsers));
-    if (storedRepos) setFavoriteRepos(JSON.parse(storedRepos));
-
-    setFavoritesLoading(false);
-  }, []);
-
-  // Salvar favoritos no localStorage
-  useEffect(() => {
-    localStorage.setItem("favoriteUsers", JSON.stringify(favoriteUsers));
-  }, [favoriteUsers]);
-
-  useEffect(() => {
-    localStorage.setItem("favoriteRepos", JSON.stringify(favoriteRepos));
-  }, [favoriteRepos]);
-
-  ///////////////////////////////////////////////////////////////////////
-  // Alternar favoritos
-  function toggleFavorite(user: User) {
-    const isFav = favoriteUsers.some((fav) => fav.login === user.login);
-    if (isFav) {
-      setFavoriteUsers(favoriteUsers.filter((fav) => fav.login !== user.login));
-    } else {
-      setFavoriteUsers([...favoriteUsers, user]);
-    }
-  }
-
-  function toggleFavoriteR(repo: Repo) {
-    const isFav = favoriteRepos.some((fav) => fav.id === repo.id);
-    if (isFav) {
-      setFavoriteRepos(favoriteRepos.filter((fav) => fav.id !== repo.id));
-    } else {
-      setFavoriteRepos([...favoriteRepos, repo]);
-    }
-  }
-
-  ///////////////////////////////////////////////////////////////////////
-  // React Query: buscar usuários
-  const username = form.getValues("username");
-  const [searchUsername, setSearchUsername] = useState("");
-  const {
-    data: users = [],
-    isLoading: userLoading,
-    isError,
-    error,
-  } = useQuery(usersQuery(username, page, perPage, setTotal));
-
-  ///////////////////////////////////////////////////////////////////////
-  // Render
   return (
-    <div className="fixed top-0 left-0 flex flex-col w-full h-full" style={bg6}>
-      {/* Barra superior */}
-      <div className="z-50 rounded-b-lg flex justify-between items-center bg-blue-950 p-4 w-full">
-        <h1 className="text-2xl font-bold text-amber-50 truncate">
-          Buscar Usuários do GitHub
-        </h1>
-        <div className="flex items-center gap-4">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit((data) => {
-                setSearchUsername(data.username);
-                setPage(1);
-              })}
-              className="flex gap-2"
-            >
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        className="bg-amber-50"
-                        placeholder="Digite o nome de usuário"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button className="bg-blue-950" type="submit">
-                <Search />
-              </Button>
-            </form>
-          </Form>
+    <div className="flex flex-col w-full h-full">
+      <div className="flex justify-between text-center w-full">
+        <div className="w-full">
+          <h1 className="font-bold mb-4 text-4xl">Usuários Encontrados</h1>
+          <Separator className="my-4 w-full bg-black " />
+          <Suspense fallback={<PesquisaSkeleton />}>
+            <SearchResults
+              page={page}
+              setPage={setPage}
+              total={userSearch?.total ?? 0}
+              perPage={perPage}
+            />
+          </Suspense>
         </div>
-      </div>
-
-      {/* Conteúdo */}
-      <div className="flex space-y-6 gap-1 justify-between text-center p-3">
-        {/* Resultados da pesquisa */}
-        {userLoading ? (
-          <PesquisaSkeleton />
-        ) : isError ? (
-          <span>{(error as Error).message}</span>
-        ) : (
-          <SearchResults
-            users={users}
-            page={page}
-            setPage={setPage}
-            total={total}
-            perPage={perPage}
-            favoriteUsers={favoriteUsers}
-            toggleFavorite={toggleFavorite}
-          />
-        )}
-
-        {/* Favoritos */}
-        {favoritesLoading ? (
-          <FavoritosSkeleton />
-        ) : (
-          <Favoritos
-            favoriteUsers={favoriteUsers}
-            toggleFavorite={toggleFavorite}
-            favoriteRepos={favoriteRepos}
-            toggleFavoriteR={toggleFavoriteR}
-          />
-        )}
       </div>
     </div>
   );
