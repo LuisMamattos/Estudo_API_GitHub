@@ -121,7 +121,7 @@ export default function AppSideBar() {
                             <FormItem>
                               <FormControl>
                                 <Input
-                                  className="bg-amber-50"
+                                  className=""
                                   placeholder="Digite o usuário"
                                   {...field}
                                 />
@@ -168,9 +168,9 @@ export default function AppSideBar() {
                       Usuários Favoritos
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" className="h-2 w-2">
+                          <div>
                             <Info className="size-3" />
-                          </Button>
+                          </div>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>
@@ -322,7 +322,7 @@ function FavoriteUserCard({ user }: { user: User }) {
         </div>
       </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-64 bg-[rgba(243,244,246,0.9)]">
+      <ContextMenuContent className="w-64]">
         {topRepos.length > 0 ? (
           topRepos.map((repo: Repo) => (
             <ContextMenuItem

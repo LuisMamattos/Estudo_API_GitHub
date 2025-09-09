@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AtSignIcon, Star, StarIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  AtSignIcon,
+  CheckCircle2Icon,
+  PopcornIcon,
+  Star,
+  StarIcon,
+  Terminal,
+} from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { bg5 } from "@/app/estilos";
 import {
@@ -18,6 +26,7 @@ import { Suspense, useActionState } from "react";
 import { useFavorites } from "@/app/context/FavoritesContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function SearchResults({
   page,
@@ -56,10 +65,10 @@ export function SearchResults({
     return <PesquisaSkeleton />;
   }
   if (isError) {
-    return <>Erro ao buscar usuario</>; /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    return <PesquisaError />; /////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
   if (!userSearch || userSearch.items.length === 0) {
-    return <>Nenhum usuario encontrado</>; /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    return <Pesquisa404 />; /////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
   return (
     <div className=" w-full">
@@ -125,6 +134,8 @@ export function SearchResults({
   );
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 export function PesquisaSkeleton() {
   /* resultados da pesquisa */
   return (
@@ -148,6 +159,61 @@ export function PesquisaSkeleton() {
           ))}
         </div>
       </ScrollArea>
+    </div>
+  );
+}
+
+export function PesquisaError() {
+  /* resultados da pesquisa */
+  return (
+    <div className="flex flex-col w-full  items-center gap-4">
+      <Alert variant="destructive" className=" w-[400px] md:w-[600px] mt-15">
+        <AlertCircleIcon />
+        <AlertTitle className="text-xl">Ops, algo deu errado!</AlertTitle>
+        <AlertDescription className="p-6">
+          Não conseguimos carregar os resultados da pesquisa. Tente o seguinte:
+          <ul className="flex flex-col items-start list-inside list-disc text-sm">
+            <li>Aguarde alguns segundos para a API do GitHub responder</li>
+            <li>Verifique sua conexão com a internet</li>
+            <li>Atualize a página e tente novamente</li>
+            <li>Se o problema persistir, tente pesquisar outro usuário</li>
+          </ul>
+        </AlertDescription>
+      </Alert>
+      <div className="w-[400px] h-[400px] rounded-full overflow-hidden mx-auto">
+        <img
+          src="/images/notFound.gif"
+          alt="Carregando..."
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+  );
+}
+
+export function Pesquisa404() {
+  /* usuário não encontrado */
+  return (
+    <div className="flex flex-col w-full  items-center gap-4">
+      <Alert className=" w-[400px] md:w-[600px] mt-15">
+        <AlertCircleIcon />
+        <AlertTitle className="text-xl">Usuário não encontrado!</AlertTitle>
+        <AlertDescription className="p-6">
+          Não foi possível encontrar um perfil com esse nome. Tente o seguinte:
+          <ul className="flex flex-col items-start list-inside list-disc text-sm">
+            <li>Verifique se o nome de usuário está correto</li>
+            <li>Tente pesquisar outro usuário do GitHub</li>
+            <li>Atualize a página caso tenha ocorrido algum erro temporário</li>
+          </ul>
+        </AlertDescription>
+      </Alert>
+      <div className="w-[400px] h-[400px] rounded-full overflow-hidden mx-auto">
+        <img
+          src="/images/notFound.gif"
+          alt="Carregando..."
+          className="w-full h-full object-cover"
+        />
+      </div>
     </div>
   );
 }
