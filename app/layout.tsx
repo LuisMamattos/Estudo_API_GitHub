@@ -2,7 +2,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import "./globals.css";
 import Providers from "./providers"; ///////
 import AppSideBar from "./side-bar";
-import { Suspense } from "react";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
@@ -17,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className="bg-background text-foreground ">
         <ThemeProvider
           attribute="class"
