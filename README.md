@@ -24,4 +24,4 @@ O projeto já está hospedado no **Vercel**:
 
 ---
 
-📌 Projeto feito para fins de aprendizado e prática com consumo de API + Next.js.
+📌 Projeto feito para fins de prática com consumo de API + Next.js.
