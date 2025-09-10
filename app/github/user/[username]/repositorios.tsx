@@ -8,11 +8,22 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { Star, Utensils, Code, ExternalLink, Pin } from "lucide-react";
+import {
+  Star,
+  Utensils,
+  Code,
+  ExternalLink,
+  Pin,
+  AlertCircleIcon,
+  UserIcon,
+  FileCode,
+} from "lucide-react";
 import PaginationControls from "@/app/PaginationControls";
 import { Repo } from "@/app/types";
 import { bg8 } from "@/app/estilos";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ReposListProps {
   repos: Repo[];
@@ -96,6 +107,60 @@ export default function ReposList({
         total={total}
         perPage={perPage}
       />
+    </div>
+  );
+}
+export function RepositoriosSkeleton() {
+  /* repositorios */
+  return (
+    <div className="flex flex-col w-full items-center">
+      <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
+        {Array.from({ length: 30 }).map((_, index) => (
+          <Card key={index}>
+            <CardHeader className="flex justify-between items-center">
+              <Skeleton className="h-[20px] w-[150px]  rounded-xl" />
+              <Pin className="size-5 mr-2 fill-gray-200 stroke-gray-200" />
+            </CardHeader>
+
+            <CardDescription className="flex justify-center">
+              <Skeleton className="h-[32px] w-[200px]  rounded-xl" />
+            </CardDescription>
+
+            <CardContent className="flex justify-between">
+              <Skeleton className="h-[20px] w-[100px]  rounded-xl" />
+              <Skeleton className="h-[20px] w-[50px]  rounded-xl" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+export function RepositoriosError() {
+  /* repositorios */
+  return (
+    <div className="flex flex-col w-full items-center">
+      <div className="grid gap-1 font-semibold h-[720px] w-full overflow-y-auto">
+        <Card className="border-red-300">
+          <CardHeader className="flex flex-col items-center text-center gap-4 w-full">
+            <div className="flex flex-col items-center text-center w-full max-w-[400px]">
+              <FileCode className="w-full  p-6 h-auto aspect-square " />
+            </div>
+            <div className="flex flex-col w-full   gap-4">
+              <Alert variant="destructive" className=" ">
+                <AlertCircleIcon />
+                <AlertTitle className="text-xl">
+                  Ops, algo deu errado!
+                </AlertTitle>
+                <AlertDescription className="p-6">
+                  Não conseguimos carregar os repositórios deste usuário. A API
+                  pode estar instavel, aguarde um momento e tente novamente!
+                </AlertDescription>
+              </Alert>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
     </div>
   );
 }

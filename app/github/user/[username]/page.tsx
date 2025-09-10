@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { PerfilSkeleton, RepositoriosSkeleton } from "@/app/skeletons";
-import PerfilCard from "./perfil";
-import ReposList from "./repositorios";
+
+import PerfilCard, { PerfilError, PerfilSkeleton } from "./perfil";
+import ReposList, {
+  RepositoriosError,
+  RepositoriosSkeleton,
+} from "./repositorios";
 
 import { useQuery } from "@tanstack/react-query"; //aq
 import { userProfileQuery, userReposQuery } from "@/lib/query-options"; //aq
@@ -49,7 +52,7 @@ export default function UserPage({ params }: Props) {
         {userLoading ? (
           <PerfilSkeleton />
         ) : isUserError ? (
-          <div className="text-red-600">{userError?.message}</div>
+          <PerfilError />
         ) : (
           user && <PerfilCard user={user} />
         )}
@@ -58,7 +61,7 @@ export default function UserPage({ params }: Props) {
         {reposLoading ? (
           <RepositoriosSkeleton />
         ) : isReposError ? (
-          <div className="text-red-600">{reposError?.message}</div>
+          <RepositoriosError />
         ) : (
           user && (
             <ReposList
