@@ -311,13 +311,7 @@ function FavoriteUserCard({ user }: { user: User }) {
               toggleFavorite(user);
             }}
           >
-            <StarIcon
-              className={`w-4 h-4 ${
-                favoriteUsers.some((fav) => fav.login === user.login)
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-gray-400"
-              }`}
-            />
+            <StarIcon className="w-4 h-4 stroke-gray-400 fill-accent-foreground" />
           </Button>
         </div>
       </ContextMenuTrigger>

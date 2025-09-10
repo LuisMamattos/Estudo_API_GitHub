@@ -24,7 +24,7 @@ export default function HomePage() {
       <div className="flex justify-between text-center w-full">
         <div className="w-full">
           <h1 className="font-bold mb-4 text-4xl">Usuários Encontrados</h1>
-          <Separator className="my-4 w-full bg-black " />
+          <Separator className="my-4 w-full " />
           <div className="flex">
             <Suspense fallback={<PesquisaSkeleton />}>
               <SearchResults

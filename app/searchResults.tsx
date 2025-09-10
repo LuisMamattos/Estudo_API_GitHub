@@ -5,6 +5,7 @@ import {
   AlertCircleIcon,
   AtSignIcon,
   CheckCircle2Icon,
+  Icon,
   PopcornIcon,
   Star,
   StarIcon,
@@ -101,6 +102,7 @@ export function SearchResults({
                 </div>
                 <Button
                   variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(user);
@@ -110,7 +112,7 @@ export function SearchResults({
                   <Star
                     className={`w-5 h-5 ${
                       favoriteUsers.some((fav) => fav.login === user.login)
-                        ? "fill-yellow-400 text-yellow-400"
+                        ? " stroke-gray-400 fill-accent-foreground"
                         : "text-gray-400"
                     }`}
                   />
@@ -121,7 +123,7 @@ export function SearchResults({
         </div>
       </ScrollArea>
 
-      <Separator className="my-4 w-full bg-black " />
+      <Separator className="my-4 w-full " />
       {total > 0 && (
         <PaginationControls
           page={page}
