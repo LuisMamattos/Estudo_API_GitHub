@@ -63,6 +63,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export default function AppSideBar() {
   const router = useRouter();
@@ -95,7 +97,11 @@ export default function AppSideBar() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
   //////////////////////////////////////////////////
+  const [showAvatars, setShowAvatars] = useState(true);
+  //////////////////////////////////////////////////
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -158,6 +164,7 @@ export default function AppSideBar() {
           )}
         </SidebarGroup>
         {/* Usuários Favoritos */}
+
         {isClient && (
           <SidebarGroup>
             <SidebarMenu>
@@ -177,21 +184,60 @@ export default function AppSideBar() {
                             Clique com o botão direito nos perfis para ver
                             repositórios com mais estrelas
                           </p>
+                          <p>
+                            Selecione como deseja visualizar os usuários
+                            favoritos
+                          </p>
                         </TooltipContent>
                       </Tooltip>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAvatars((prev) => !prev);
+                        }}
+                        className={`w-10 h-5 rounded-full p-[2px] cursor-pointer transition-colors duration-300 ${
+                          showAvatars ? "bg-primary" : "bg-muted"
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                            showAvatars ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </div>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <ScrollArea className="h-[160px]  ">
-                      <SidebarMenuSub>
+                    {showAvatars ? (
+                      <div
+                        className="px-4 mt-4 flex flex-wrap items-center 
+                                   [&>*]:-ml-2  [&>*]:-mt-2 hover:[&>*]:ml-1 hover:[&>*]:mt-1
+                                   [&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out"
+                      >
                         {favoriteUsers.map((user) => (
-                          <SidebarMenuSubItem key={user.login}>
-                            <FavoriteUserCard user={user} />
-                          </SidebarMenuSubItem>
+                          <Avatar
+                            key={user.login}
+                            className="ring-2 ring-background basis-1/7 expanded:basis-1/5"
+                            onClick={() =>
+                              router.push(`/github/user/${user.login}`)
+                            }
+                          >
+                            <AvatarImage src={user.avatar_url} />
+                          </Avatar>
                         ))}
-                      </SidebarMenuSub>
-                    </ScrollArea>
+                      </div>
+                    ) : (
+                      <ScrollArea className="h-[160px]  ">
+                        <SidebarMenuSub>
+                          {favoriteUsers.map((user) => (
+                            <SidebarMenuSubItem key={user.login}>
+                              <FavoriteUserCard user={user} />
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </ScrollArea>
+                    )}
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
