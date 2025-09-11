@@ -110,7 +110,6 @@ export default function AppSideBar() {
 
   //////////////////////////////////////////////////
   const [showAvatars, setShowAvatars] = useState(true);
-  const [showRepos, setShowRepos] = useState(true);
   //////////////////////////////////////////////////
 
   return (
@@ -182,7 +181,7 @@ export default function AppSideBar() {
               <Collapsible defaultOpen className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className="font-bold text-[12px] ">
+                    <SidebarMenuButton className="font-bold ">
                       Usuários Favoritos
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -258,157 +257,130 @@ export default function AppSideBar() {
         )}
 
         {/* Repositórios Favoritos */}
-        {isClient && (
+        {isClient && favoriteRepos.length > 0 && (
           <SidebarGroup>
             <SidebarMenu>
               <Collapsible defaultOpen className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className="font-bold text-[12px] ">
-                      Repositórios Marcados
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowRepos((prev) => !prev);
-                        }}
-                        className={`w-8 h-4 rounded-full p-[2px] cursor-pointer transition-colors duration-300 ${
-                          showRepos ? "bg-primary" : "bg-muted"
-                        }`}
-                      >
-                        <div
-                          className={`w-3 h-3 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                            showRepos ? "translate-x-4" : "translate-x-0"
-                          }`}
-                        />
-                      </div>
+                    <SidebarMenuButton className="font-bold flex items-center gap-2">
+                      Repositórios Fixados
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     {/* Carrossel com cards */}
-                    {showRepos ? (
-                      <div className="flex flex-col items-center py-4">
-                        <Carousel className="w-full max-w-[140px]">
-                          <CarouselContent className="gap-4">
-                            {favoriteRepos.map((repo) => (
-                              <CarouselItem key={repo.id}>
-                                <Card className=" flex flex-col ">
-                                  <CardContent className="flex flex-col gap-2 !p-0">
-                                    {/* Header com avatar e nome do criador */}
-                                    <div className="flex items-center gap-2 p-2">
-                                      <Avatar className="w-8 h-8">
-                                        <AvatarImage
-                                          src={repo.owner?.avatar_url}
-                                        />
-                                      </Avatar>
-                                      <div className="flex flex-col ">
-                                        <span className="flex flex-wrap font-semibold text-[10px] ">
-                                          {repo.name}
-                                        </span>
-                                        <span className="text-xs text-muted-foreground ">
-                                          {repo.owner?.login}
-                                        </span>
-                                      </div>
-                                    </div>
-
-                                    {/* Descrição */}
-
-                                    <div className="h-[100px]">
-                                      {repo.description ? (
-                                        <p className="text-sm text-muted-foreground text-center p-2">
-                                          {repo.description}
-                                        </p>
-                                      ) : (
-                                        <p className="text-sm text-muted-foreground text-center p-2">
-                                          ...
-                                        </p>
-                                      )}
-                                    </div>
-
-                                    {/* Informações adicionais */}
-                                    <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
-                                      {repo.language ? (
-                                        <span className="">
-                                          {repo.language}
-                                        </span>
-                                      ) : (
-                                        <span className="">...</span>
-                                      )}
-                                      <div className="flex items-center gap-2">
-                                        <span className="flex items-center gap-1">
-                                          <div className="flex items-center gap-1">
-                                            <StarIcon className="size-4" />
-                                            {repo.stargazers_count}
-                                          </div>
-                                        </span>
-                                        |
-                                        <span className="flex items-center gap-1">
-                                          <div className="flex items-center gap-1">
-                                            <ForkKnifeIcon className="size-4" />
-                                            {repo.forks_count}
-                                          </div>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              </CarouselItem>
-                            ))}
-                          </CarouselContent>
-                          <CarouselPrevious />
-                          <CarouselNext />
-                        </Carousel>
-                      </div>
-                    ) : (
-                      <ScrollArea className="h-[320px]  ">
-                        <SidebarMenuSub>
-                          {favoriteRepos.length > 0 ? (
-                            favoriteRepos.map((repo) => (
-                              <SidebarMenuSubItem key={repo.id}>
-                                <SidebarMenuSubButton asChild>
-                                  <div
-                                    className="flex items-center justify-between min-h-[50px] gap-1 cursor-pointer hover:bg-muted"
-                                    onClick={() =>
-                                      window.open(repo.html_url, "_blank")
-                                    }
-                                  >
-                                    <div className="flex flex-col w-[100px] p-1">
-                                      <span className="font-semibold text-[12px] truncate">
+                    <div className="flex flex-col items-center py-4">
+                      <Carousel className="w-full max-w-[150px]">
+                        <CarouselContent className="gap-4">
+                          {favoriteRepos.map((repo) => (
+                            <CarouselItem key={repo.id}>
+                              <Card className=" flex flex-col">
+                                <CardContent className="flex flex-col gap-2 !p-0">
+                                  {/* Header com avatar e nome do criador */}
+                                  <div className="flex items-center gap-2 p-2">
+                                    <Avatar className="w-8 h-8">
+                                      <AvatarImage
+                                        src={repo.owner?.avatar_url}
+                                      />
+                                    </Avatar>
+                                    <div className="flex flex-col ">
+                                      <span className="flex flex-wrap font-semibold text-[10px] ">
                                         {repo.name}
                                       </span>
-                                      <span className="text-xs truncate text-muted-foreground">
+                                      <span className="text-xs text-muted-foreground ">
                                         {repo.owner?.login}
                                       </span>
-                                      {repo.language && (
-                                        <span className="text-xs truncate text-muted-foreground">
-                                          {repo.language}
-                                        </span>
-                                      )}
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleFavoriteR(repo);
-                                      }}
-                                    >
-                                      <PinOff className="w-4 h-4text-black" />
-                                    </Button>
                                   </div>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))
-                          ) : (
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton asChild>
-                                <span>...</span>
+
+                                  {/* Descrição */}
+                                  {repo.description && (
+                                    <p className="text-sm text-muted-foreground line-clamp-3 p-2">
+                                      {repo.description}
+                                    </p>
+                                  )}
+
+                                  {/* Informações adicionais */}
+                                  <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
+                                    {repo.language && (
+                                      <span className="">{repo.language}</span>
+                                    )}
+                                    <div className="flex items-center gap-2">
+                                      <span className="flex items-center gap-1">
+                                        <div className="flex items-center gap-1">
+                                          <StarIcon className="size-4" />{" "}
+                                          {repo.stargazers_count}
+                                        </div>
+                                      </span>
+                                      |
+                                      <span className="flex items-center gap-1">
+                                        <div className="flex items-center gap-1">
+                                          <ForkKnifeIcon className="size-4" />
+                                          {repo.forks_count}
+                                        </div>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                    </div>
+
+                    {/* Scroll com lista */}
+                    <ScrollArea className="h-[320px] ">
+                      <SidebarMenuSub>
+                        {favoriteRepos.length > 0 ? (
+                          favoriteRepos.map((repo) => (
+                            <SidebarMenuSubItem key={repo.id}>
+                              <SidebarMenuSubButton>
+                                <div
+                                  className="flex items-center justify-between min-h-[50px] gap-1 cursor-pointer hover:bg-muted"
+                                  onClick={() =>
+                                    window.open(repo.html_url, "_blank")
+                                  }
+                                >
+                                  <div className="flex flex-col truncate p-1">
+                                    <span className="font-semibold truncate">
+                                      {repo.name}
+                                    </span>
+                                    <span className="text-xs truncate text-muted-foreground">
+                                      {repo.owner?.login}
+                                    </span>
+                                    {repo.language && (
+                                      <span className="text-xs truncate text-muted-foreground">
+                                        {repo.language}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleFavoriteR(repo);
+                                    }}
+                                  >
+                                    <PinOff className="w-4 h-4 text-black" />
+                                  </Button>
+                                </div>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
-                          )}
-                        </SidebarMenuSub>
-                      </ScrollArea>
-                    )}
+                          ))
+                        ) : (
+                          <SidebarMenuSubItem>
+                            <SidebarMenuSubButton asChild>
+                              <span>...</span>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )}
+                      </SidebarMenuSub>
+                    </ScrollArea>
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
