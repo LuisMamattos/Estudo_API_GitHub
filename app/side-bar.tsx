@@ -230,7 +230,7 @@ export default function AppSideBar() {
                         {favoriteUsers.map((user) => (
                           <Avatar
                             key={user.login}
-                            className="ring-2 ring-background basis-1/7 expanded:basis-1/5"
+                            className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120"
                             onClick={() =>
                               router.push(`/github/user/${user.login}`)
                             }
@@ -292,7 +292,12 @@ export default function AppSideBar() {
                           <CarouselContent className="gap-4">
                             {favoriteRepos.map((repo) => (
                               <CarouselItem key={repo.id}>
-                                <Card className=" flex flex-col ">
+                                <Card
+                                  className=" flex flex-col hover:cursor-pointer hover:bg-secondary"
+                                  onClick={() =>
+                                    window.open(repo.html_url, "_blank")
+                                  }
+                                >
                                   <CardContent className="flex flex-col gap-2 !p-0">
                                     {/* Header com avatar e nome do criador */}
                                     <div className="flex items-center gap-2 p-2">
