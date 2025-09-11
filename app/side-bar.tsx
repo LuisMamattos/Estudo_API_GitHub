@@ -222,6 +222,7 @@ export default function AppSideBar() {
                   </CollapsibleTrigger>
                   <CollapsibleContent
                     className="overflow-hidden
+                     pb-5                               
                                transition-all
                                data-[state=closed]:animate-collapsible-up
                                data-[state=open]:animate-collapsible-down"
@@ -229,7 +230,7 @@ export default function AppSideBar() {
                     {showAvatars ? (
                       <div
                         className="px-4 mt-4 flex flex-wrap items-center 
-                                   [&>*]:-ml-2  [&>*]:-mt-2 hover:[&>*]:ml-1 hover:[&>*]:mt-1
+                                   [&>*]:-ml-2  [&>*]:-mb-2 hover:[&>*]:ml-1 hover:[&>*]:mb-1
                                    [&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out"
                       >
                         {favoriteUsers.map((user) => (
