@@ -220,7 +220,12 @@ export default function AppSideBar() {
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
+                  <CollapsibleContent
+                    className="overflow-hidden
+                               transition-all
+                               data-[state=closed]:animate-collapsible-up
+                               data-[state=open]:animate-collapsible-down"
+                  >
                     {showAvatars ? (
                       <div
                         className="px-4 mt-4 flex flex-wrap items-center 
@@ -228,15 +233,21 @@ export default function AppSideBar() {
                                    [&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out"
                       >
                         {favoriteUsers.map((user) => (
-                          <Avatar
-                            key={user.login}
-                            className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120"
-                            onClick={() =>
-                              router.push(`/github/user/${user.login}`)
-                            }
-                          >
-                            <AvatarImage src={user.avatar_url} />
-                          </Avatar>
+                          <Tooltip key={user.login}>
+                            <TooltipTrigger asChild>
+                              <Avatar
+                                className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120 hover:z-50 active:scale-200 active:z-50 "
+                                onClick={() =>
+                                  router.push(`/github/user/${user.login}`)
+                                }
+                              >
+                                <AvatarImage src={user.avatar_url} />
+                              </Avatar>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {user.name || user.login}
+                            </TooltipContent>
+                          </Tooltip>
                         ))}
                       </div>
                     ) : (
@@ -284,7 +295,12 @@ export default function AppSideBar() {
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
+                  <CollapsibleContent
+                    className="overflow-hidden
+                               transition-all
+                               data-[state=closed]:animate-collapsible-up
+                               data-[state=open]:animate-collapsible-down"
+                  >
                     {/* Carrossel com cards */}
                     {showRepos ? (
                       <div className="flex flex-col items-center py-4">
