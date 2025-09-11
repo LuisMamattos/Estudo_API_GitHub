@@ -70,7 +70,10 @@ export default function ReposList({
                   type="button"
                   size="icon"
                   variant="ghost"
-                  onClick={() => toggleFavoriteRepo(repo)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavoriteRepo(repo);
+                  }}
                 >
                   <Pin
                     className={`w-5 h-5 ${

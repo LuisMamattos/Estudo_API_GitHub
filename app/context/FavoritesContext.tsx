@@ -22,6 +22,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
     return [];
   });
+
   const [favoriteRepos, setFavoriteRepos] = useState<Repo[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("favoriteRepos");
@@ -57,11 +58,25 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   }
 
   function toggleFavoriteR(repo: Repo) {
-    setFavoriteRepos((prev) =>
-      prev.some((fav) => fav.id === repo.id)
-        ? prev.filter((fav) => fav.id !== repo.id)
-        : [...prev, repo]
-    );
+    setFavoriteRepos((prev) => {
+      const isFavorited = prev.some((fav) => fav.id === repo.id);
+
+      if (isFavorited) {
+        return prev.filter((fav) => fav.id !== repo.id);
+      }
+
+      // Garante que o repo salvo tenha owner
+      const repoToSave: Repo = {
+        ...repo,
+        owner: repo.owner ?? {
+          login: repo.html_url.split("/")[3] || "Unknown",
+          avatar_url: `https://github.com/${repo.html_url.split("/")[3]}.png`,
+          html_url: repo.html_url,
+        },
+      };
+
+      return [...prev, repoToSave];
+    });
   }
 
   return (
@@ -73,9 +88,9 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useFavorites() {
+export const useFavorites = () => {
   const ctx = useContext(FavoritesContext);
   if (!ctx)
     throw new Error("useFavorites precisa estar dentro de FavoritesProvider");
   return ctx;
-}
+};
