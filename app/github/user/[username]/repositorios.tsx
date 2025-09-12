@@ -132,7 +132,7 @@ export function RepositoriosSkeleton() {
           <Card key={index}>
             <CardHeader className="flex justify-between items-center">
               <Skeleton className="h-[20px] w-[150px]  rounded-xl" />
-              <Pin className="size-5 mr-2 fill-gray-200 stroke-gray-200" />
+              <Pin className="size-4 mr-2 " />
             </CardHeader>
 
             <CardDescription className="flex justify-center">

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertCircleIcon,
   AtSignIcon,
@@ -92,6 +92,15 @@ export function SearchResults({
                 <div className="flex flex-row items-center gap-2 cursor-pointer truncate">
                   <Avatar>
                     <AvatarImage src={user.avatar_url} alt={user.login} />
+                    <AvatarFallback>
+                      {user.name
+                        ? user.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                        : user.login.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <span className="font-medium text-2xl">
                     <p className="flex items-center gap-1">
@@ -155,7 +164,7 @@ export function PesquisaSkeleton() {
                   <Skeleton className=" w-[300] h-[30] rounded-xl" />
                 </div>
 
-                <StarIcon className="size-4 mr-[20px] fill-gray-200 stroke-gray-200" />
+                <StarIcon className="size-4 mr-[10px]" />
               </CardContent>
             </Card>
           ))}

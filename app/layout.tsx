@@ -4,6 +4,12 @@ import Providers from "./providers"; ///////
 import AppSideBar from "./side-bar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "GitHub Profiles",
@@ -28,7 +34,6 @@ export default function RootLayout({
             <AppSideBar />
             <main className="container mx-auto p-6">
               <SidebarTrigger className="" />
-              <ModeToggle />
 
               {children}
             </main>

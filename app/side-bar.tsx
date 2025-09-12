@@ -12,6 +12,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuButton,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
 import {
   Form,
@@ -48,7 +49,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFavorites } from "./context/FavoritesContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -75,6 +76,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ModeToggle } from "@/components/ui/mode-toggle";
+import clsx from "clsx";
 
 export default function AppSideBar() {
   const router = useRouter();
@@ -110,12 +113,25 @@ export default function AppSideBar() {
 
   //////////////////////////////////////////////////
   const [showAvatars, setShowAvatars] = useState(true);
-  const [showRepos, setShowRepos] = useState(true);
+  const [showRepos, setShowRepos] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [locked, setLocked] = useState(false);
   //////////////////////////////////////////////////
 
   return (
     <Sidebar>
+      <SidebarHeader>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-min h-min">
+              <ModeToggle />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Tema</p>
+          </TooltipContent>
+        </Tooltip>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           {pathname === "/" && (
@@ -221,47 +237,71 @@ export default function AppSideBar() {
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent
-                    className="overflow-hidden
-                     pb-5                               
-                               transition-all
-                               data-[state=closed]:animate-collapsible-up
-                               data-[state=open]:animate-collapsible-down"
+                    className="overflow-hidden pb-5 transition-all
+                              data-[state=closed]:animate-collapsible-up
+                              data-[state=open]:animate-collapsible-down"
                   >
                     {showAvatars ? (
                       <div
-                        className="px-4 mt-4 flex flex-wrap items-center 
-                                   [&>*]:-ml-2  [&>*]:-mb-2 hover:[&>*]:ml-1 hover:[&>*]:mb-1
-                                   [&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out"
+                        className={clsx(
+                          "px-4 mt-4 flex flex-wrap items-center [&>*]:transition-all [&>*]:duration-600 [&>*]:ease-in-out",
+                          expanded || locked
+                            ? "[&>*]:ml-1 [&>*]:mb-1"
+                            : "[&>*]:-ml-2 [&>*]:-mb-2"
+                        )}
                         onMouseEnter={() => setExpanded(true)}
-                        onMouseLeave={() => setExpanded(false)}
+                        onMouseLeave={() => {
+                          if (!locked) setExpanded(false);
+                        }}
                       >
-                        {(expanded
+                        {(expanded || locked
                           ? favoriteUsers
                           : favoriteUsers.slice(0, 7)
                         ).map((user) => (
                           <Tooltip key={user.login}>
                             <TooltipTrigger asChild>
-                              <ContextMenu>
+                              <ContextMenu
+                                onOpenChange={(open) => {
+                                  if (open) {
+                                    setLocked(true);
+                                    setExpanded(true);
+                                  } else {
+                                    setLocked(false);
+                                    setExpanded(false);
+                                  }
+                                }}
+                              >
                                 <ContextMenuTrigger>
                                   <Avatar
-                                    className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120 hover:z-50 active:scale-200 active:z-50 "
+                                    className="ring-2 ring-background basis-1/7 expanded:basis-1/5 
+                                              hover:cursor-pointer hover:scale-120 hover:z-50 
+                                              active:scale-200 active:z-50"
                                     onClick={() =>
                                       router.push(`/github/user/${user.login}`)
                                     }
                                   >
                                     <AvatarImage src={user.avatar_url} />
+                                    <AvatarFallback>
+                                      {user.name
+                                        ? user.name
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .toUpperCase()
+                                        : user.login.slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
                                   </Avatar>
                                 </ContextMenuTrigger>
                                 <FavoriteUserAvatar user={user} />
                               </ContextMenu>
                             </TooltipTrigger>
-
                             <TooltipContent>
                               {user.name || user.login}
                             </TooltipContent>
                           </Tooltip>
                         ))}
-                        {!expanded && favoriteUsers.length > 7 && (
+
+                        {!expanded && !locked && favoriteUsers.length > 7 && (
                           <Avatar className="ring-2 ring-background basis-1/7 expanded:hidden bg-muted text-foreground flex items-center justify-center">
                             <span className="text-sm font-semibold">
                               +{favoriteUsers.length - 7}
@@ -270,7 +310,7 @@ export default function AppSideBar() {
                         )}
                       </div>
                     ) : (
-                      <ScrollArea className="h-[160px]  ">
+                      <ScrollArea className="h-[160px]">
                         <SidebarMenuSub>
                           {favoriteUsers.map((user) => (
                             <SidebarMenuSubItem key={user.login}>
@@ -340,6 +380,11 @@ export default function AppSideBar() {
                                         <AvatarImage
                                           src={repo.owner?.avatar_url}
                                         />
+                                        <AvatarFallback>
+                                          {repo.owner?.login
+                                            .slice(0, 2)
+                                            .toUpperCase()}
+                                        </AvatarFallback>
                                       </Avatar>
                                       <div className="flex flex-col ">
                                         <span className="flex flex-wrap font-semibold text-[10px] ">
@@ -563,7 +608,9 @@ function FavoriteUserAvatar({ user }: { user: User }) {
           </ContextMenuItem>
         ))
       ) : (
-        <ContextMenuItem disabled>Nenhum repositório</ContextMenuItem>
+        <ContextMenuItem disabled>
+          Nenhum repositório ou API lenta
+        </ContextMenuItem>
       )}
     </ContextMenuContent>
   );
