@@ -111,6 +111,7 @@ export default function AppSideBar() {
   //////////////////////////////////////////////////
   const [showAvatars, setShowAvatars] = useState(true);
   const [showRepos, setShowRepos] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   //////////////////////////////////////////////////
 
   return (
@@ -197,8 +198,7 @@ export default function AppSideBar() {
                           </p>
                           <p>
                             Clique com o botão direito nos perfis para ver
-                            repositórios com mais estrelas (Somente layout de
-                            lista)
+                            repositórios com mais estrelas
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -232,8 +232,13 @@ export default function AppSideBar() {
                         className="px-4 mt-4 flex flex-wrap items-center 
                                    [&>*]:-ml-2  [&>*]:-mb-2 hover:[&>*]:ml-1 hover:[&>*]:mb-1
                                    [&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out"
+                        onMouseEnter={() => setExpanded(true)}
+                        onMouseLeave={() => setExpanded(false)}
                       >
-                        {favoriteUsers.map((user) => (
+                        {(expanded
+                          ? favoriteUsers
+                          : favoriteUsers.slice(0, 7)
+                        ).map((user) => (
                           <Tooltip key={user.login}>
                             <TooltipTrigger asChild>
                               <ContextMenu>
@@ -256,6 +261,13 @@ export default function AppSideBar() {
                             </TooltipContent>
                           </Tooltip>
                         ))}
+                        {!expanded && favoriteUsers.length > 7 && (
+                          <Avatar className="ring-2 ring-background basis-1/7 expanded:hidden bg-muted text-foreground flex items-center justify-center">
+                            <span className="text-sm font-semibold">
+                              +{favoriteUsers.length - 7}
+                            </span>
+                          </Avatar>
+                        )}
                       </div>
                     ) : (
                       <ScrollArea className="h-[160px]  ">
