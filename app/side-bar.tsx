@@ -236,15 +236,21 @@ export default function AppSideBar() {
                         {favoriteUsers.map((user) => (
                           <Tooltip key={user.login}>
                             <TooltipTrigger asChild>
-                              <Avatar
-                                className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120 hover:z-50 active:scale-200 active:z-50 "
-                                onClick={() =>
-                                  router.push(`/github/user/${user.login}`)
-                                }
-                              >
-                                <AvatarImage src={user.avatar_url} />
-                              </Avatar>
+                              <ContextMenu>
+                                <ContextMenuTrigger>
+                                  <Avatar
+                                    className="ring-2 ring-background basis-1/7 expanded:basis-1/5 hover:cursor-pointer hover:scale-120 hover:z-50 active:scale-200 active:z-50 "
+                                    onClick={() =>
+                                      router.push(`/github/user/${user.login}`)
+                                    }
+                                  >
+                                    <AvatarImage src={user.avatar_url} />
+                                  </Avatar>
+                                </ContextMenuTrigger>
+                                <FavoriteUserAvatar user={user} />
+                              </ContextMenu>
                             </TooltipTrigger>
+
                             <TooltipContent>
                               {user.name || user.login}
                             </TooltipContent>
@@ -507,5 +513,46 @@ function FavoriteUserCard({ user }: { user: User }) {
         )}
       </ContextMenuContent>
     </ContextMenu>
+  );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+function FavoriteUserAvatar({ user }: { user: User }) {
+  //click direito aq
+  const router = useRouter();
+  const { toggleFavorite, favoriteUsers } = useFavorites();
+
+  const { data: userRepos } = useQuery<Repo[]>(
+    userReposQuery(user.login, 1, 100) //100 ja ta bom......
+  );
+
+  // Calcula os 5 mais estrelados, ordenados decrescente
+  const topRepos = userRepos
+    ? [...userRepos]
+        .sort((a, b) => b.stargazers_count - a.stargazers_count)
+        .slice(0, 10)
+    : [];
+
+  return (
+    <ContextMenuContent className="w-64]">
+      {topRepos.length > 0 ? (
+        topRepos.map((repo: Repo) => (
+          <ContextMenuItem
+            key={repo.id}
+            onClick={() => window.open(repo.html_url, "_blank")}
+            className="flex justify-between"
+          >
+            <div>{repo.name}</div>
+            <div className="flex items-center gap-1">
+              <span>{repo.stargazers_count}</span>
+              <StarIcon className="w-4 h-4 text-gray-400" />
+            </div>
+          </ContextMenuItem>
+        ))
+      ) : (
+        <ContextMenuItem disabled>Nenhum repositório</ContextMenuItem>
+      )}
+    </ContextMenuContent>
   );
 }
