@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -39,6 +39,15 @@ export default function PerfilCard({ user }: { user: User }) {
             <div className="flex flex-col items-center text-center w-full">
               <Avatar className="w-full h-full">
                 <AvatarImage src={user.avatar_url} alt={user.login} />
+                <AvatarFallback>
+                  {user.name
+                    ? user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                    : user.login.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <CardTitle className="text-[clamp(1rem,2vw,10rem)] font-bold break-words">
                 {user.name || user.login}
