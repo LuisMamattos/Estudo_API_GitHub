@@ -1,27 +1,31 @@
-# 🚀 Estudo API GitHub
+# 🚀 GitHub API Study
 
-Este projeto foi desenvolvido para estudar o consumo da **API do GitHub** com **Next.js**.  
-Ele permite pesquisar usuários e repositórios, além de favoritar/desfavoritar itens com persistência no **localStorage**.
-
-## ✨ Funcionalidades
-
-- 🔍 Pesquisa de usuários do GitHub
-- 📂 Listagem de repositórios
-- ⭐ Favoritar e desfavoritar usuários e repositórios
-- 💾 Salvamento local de favoritos
-
-## 🌐 Deploy
-
-O projeto já está hospedado no **Vercel**:  
-👉 [Acessar aplicação](https://estudo-api-git-hub.vercel.app/)
-
-## 🛠️ Tecnologias
-
-- Next.js (App Router)
-- TypeScript
-- TailwindCSS + shadcn/ui
-- GitHub API
+A simple project built with **Next.js** to explore the **GitHub API**.  
+It allows you to search for users and repositories, favorite/unfavorite them, and persist data locally using **localStorage**.
 
 ---
 
-📌 Projeto feito para fins de prática com consumo de API + Next.js.
+## ✨ Features
+
+- 🔍 **Search GitHub users**
+- 📂 **List repositories**
+- ⭐ **Favorite/unfavorite users and repositories**
+- 💾 **Local persistence of favorites**
+
+---
+
+## 🌐 Live Demo
+
+The project is deployed on **Vercel**:  
+👉 [Access the Application](https://estudo-api-git-hub.vercel.app/)
+
+---
+
+## 🛠️ Tech Stack
+
+- ⚡ [Next.js (App Router)](https://nextjs.org/)
+- 🟦 [TypeScript](https://www.typescriptlang.org/)
+- 🎨 [TailwindCSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- 🔗 [GitHub REST API](https://docs.github.com/en/rest)
+
+---
